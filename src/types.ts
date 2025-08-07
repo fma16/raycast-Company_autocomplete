@@ -28,11 +28,46 @@ export interface CompanyData {
         entrepriseAgricole: boolean;
       };
       personneMorale?: {
-        // ... (structure personneMorale inchangée)
+        denomination?: string;
+        formeJuridique?: string;
+        capital?: {
+          montant: number;
+        };
+        immatriculationRcs?: {
+          villeImmatriculation: string;
+          numeroRcs: string;
+        };
+        adresseEntreprise: {
+          adresse: {
+            codePostal?: string;
+          };
+        };
+        identite?: {
+          entreprise?: {
+            denomination?: string;
+          };
+          description?: {
+            montantCapital?: number;
+          };
+        };
+        composition?: {
+          pouvoirs?: Array<{
+            individu?: {
+              descriptionPersonne?: {
+                role?: string;
+                nom?: string;
+                prenoms?: string[];
+                genre?: string;
+                sexe?: string;
+                civilite?: string;
+              };
+            };
+          }>;
+        };
       };
       personnePhysique?: {
-        identite: {
-          entrepreneur: {
+        identite?: {
+          entrepreneur?: {
             descriptionPersonne: {
               nom?: string;
               prenoms?: string[];
@@ -46,37 +81,14 @@ export interface CompanyData {
         adresseEntreprise: {
           adresse: {
             codePostal?: string;
-            commune?: string;
-            numeroVoie?: string;
-            typeVoie?: string;
-            libelleVoie?: string;
-            complementLocalisation?: string;
-            indiceRepetition?: string;
           };
         };
         adressePersonne?: {
            adresse: {
             codePostal?: string;
-            commune?: string;
-            numeroVoie?: string;
-            typeVoie?: string;
-            libelleVoie?: string;
-            complementLocalisation?: string;
-            indiceRepetition?: string;
           };
         };
       };
     };
   };
 }
-
-export interface Representative {
-  role: string;
-  descriptionPersonne: {
-    nom: string;
-    prenoms: string;
-    sexe: 'M' | 'F';
-  };
-}
-
-// ... (le reste du fichier est inchangé)

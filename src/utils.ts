@@ -1,4 +1,4 @@
-import { CompanyData, Representative } from "./types";
+import { CompanyData } from "./types";
 
 const FALLBACK_VALUE = "[[à compléter]]";
 
@@ -122,16 +122,16 @@ export function formatField<T>(value: T | null | undefined, fallback = FALLBACK_
     return String(value);
 }
 
-export function formatAddress(address: CompanyData['formality']['content']['personneMorale']['adresseEntreprise']): string {
+export function formatAddress(address: any): string {
   if (!address || !address.adresse) return FALLBACK_VALUE;
 
   const addr = address.adresse;
   const parts = [
     addr.complementLocalisation,
-    addr.numVoie, // Changed from numeroVoie to numVoie
+    addr.numVoie || addr.numeroVoie,
     addr.indiceRepetition,
     addr.typeVoie,
-    addr.voie, // Changed from libelleVoie to voie
+    addr.voie || addr.libelleVoie,
   ];
 
   const street = parts.filter(Boolean).join(" ");
@@ -142,26 +142,9 @@ export function formatAddress(address: CompanyData['formality']['content']['pers
   return `${street}, ${city}`.trim();
 }
 
-export function formatRepresentative(representatives: Representative[]): { name: string; role: string; gender: 'M' | 'F' | null } {
-    const primaryRoles = ["Président", "Gérant", "Directeur général"];
-    let representative = representatives?.find(r => primaryRoles.includes(r.role)) || representatives?.[0];
-
-    if (!representative) {
-        return { name: FALLBACK_VALUE, role: FALLBACK_VALUE, gender: null };
-    }
-
-    const name = `${formatField(representative.descriptionPersonne.prenoms)} ${formatField(representative.descriptionPersonne.nom)}`.trim();
-
-    return {
-        name: name || FALLBACK_VALUE,
-        role: formatField(representative.role),
-        gender: representative.descriptionPersonne.sexe || null,
-    };
-}
-
-export function getGenderAgreement(gender: 'M' | 'F' | null): string {
-  if (gender === 'M') return 'habilité';
-  if (gender === 'F') return 'habilitée';
+export function getGenderAgreement(gender: 'M' | 'F' | '1' | '2' | null): string {
+  if (gender === 'M' || gender === '1') return 'habilité';
+  if (gender === 'F' || gender === '2') return 'habilitée';
   return 'habilité(e)';
 }
 
@@ -170,11 +153,8 @@ export function getLegalFormLabel(code: string): string {
 }
 
 export function formatSiren(siren: string): string {
-  // Format SIREN as "123 456 789"
   if (siren && siren.length === 9) {
     return `${siren.slice(0, 3)} ${siren.slice(3, 6)} ${siren.slice(6, 9)}`;
   }
   return siren;
 }
-
-
