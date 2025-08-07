@@ -2,6 +2,9 @@
 
 Cette extension Raycast vous permet de rechercher rapidement les informations légales et financières d'une entreprise française en utilisant son numéro SIREN ou SIRET. Elle se connecte directement à l'API de l'INPI pour fournir des données à jour et fiables.
 
+> [!IMPORTANT]
+> Cette extension a été vibecodée avec l'aide de Gemini CLI et Claude Code. A utiliser à vos risques et périls!
+
 ## Fonctionnalités
 
 - **Recherche par SIREN ou SIRET :** Entrez un numéro à 9 (SIREN) ou 14 chiffres (SIRET) pour obtenir les informations de l'entreprise.
