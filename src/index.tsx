@@ -11,6 +11,7 @@ import {
   getLegalFormLabel,
   getRoleName,
   validateAndExtractSiren,
+  FALLBACK_VALUES,
 } from "./utils";
 import { findGreffeByCodePostal } from "./services/greffe-lookup";
 // Removed fs and path imports - no longer needed for file-based logging
@@ -26,12 +27,12 @@ function SearchForm() {
 
   function handleAction() {
     if (!sirenInput) {
-      setSirenError("Please enter a SIREN or SIRET.");
+      setSirenError("⚠️ Veuillez saisir un numéro SIREN (9 chiffres) ou SIRET (14 chiffres).");
       return;
     }
     const siren = validateAndExtractSiren(sirenInput);
     if (!siren) {
-      setSirenError("Invalid SIREN or SIRET format.");
+      setSirenError("❌ Format invalide. Le SIREN doit contenir 9 chiffres, le SIRET 14 chiffres.");
       return;
     }
     setSirenError(undefined);
@@ -49,7 +50,7 @@ function SearchForm() {
       <Form.TextField
         id="siren"
         title="SIREN / SIRET"
-        placeholder="Enter 9-digit SIREN or 14-digit SIRET"
+        placeholder="Ex: 123456789 (SIREN) ou 12345678901234 (SIRET)"
         value={sirenInput}
         error={sirenError}
         onChange={(newValue) => {
@@ -76,13 +77,17 @@ function CompanyDetail({ siren }: { siren: string }) {
   }, [data]);
 
   if (error) {
-    return <Detail markdown={`## Error\n\n${error.message}`} />;
+    return (
+      <Detail 
+        markdown={`## ⚠️ Erreur de recherche\n\n${error.message}\n\n### Que faire ?\n\n- 🔄 **Réessayez** : L'extension tente automatiquement plusieurs fois\n- ⚙️ **Vérifiez vos identifiants** : Ouvrez les préférences Raycast (Cmd+,)\n- 🌐 **Vérifiez votre connexion** : L'API INPI nécessite une connexion internet\n- 💬 **Contactez le support** : Si le problème persiste, consultez la [documentation](https://github.com/[repo]/base-rne-inpi#troubleshooting)`}
+      />
+    );
   }
 
   if (!isLoading && data && !data.formality?.content?.personneMorale && !data.formality?.content?.personnePhysique) {
     return (
       <Detail
-        markdown={`## No Company Details Found\n\nThe API did not return company details for SIREN ${siren}.\n\nThis can happen if the company data is incomplete.`}
+        markdown={`## ❌ Aucune donnée trouvée\n\nL'API INPI n'a pas retourné de données pour le SIREN ${siren}.\n\n### Que faire ?\n\n- ✅ **Vérifiez le numéro SIREN** : Assurez-vous qu'il contient exactement 9 chiffres\n- ✅ **Vérifiez que l'entreprise existe** : Consultez [l'annuaire des entreprises](https://www.societe.com)\n- ✅ **Attendez quelques minutes** : Les données récentes peuvent mettre du temps à apparaître\n- ✅ **Contactez le support INPI** : Si l'entreprise existe mais n'apparaît pas\n\n### Informations techniques\n- SIREN recherché : **${siren}**\n- Source : API INPI\n- Statut : Aucune données personneMorale/personnePhysique`}
       />
     );
   }
@@ -181,8 +186,8 @@ function logApiResponse(data: CompanyData) {
  * Extracts and formats representative information from company composition data
  */
 function extractRepresentativeInfo(composition: any): RepresentativeInfo {
-  let representativeName = "[[à compléter]]";
-  let representativeRole = "[[à compléter]]";
+  let representativeName = FALLBACK_VALUES.REPRESENTATIVE_NAME;
+  let representativeRole = FALLBACK_VALUES.REPRESENTATIVE_ROLE;
   let representativeGender = null;
 
   if (composition?.pouvoirs && composition.pouvoirs.length > 0) {
@@ -190,7 +195,7 @@ function extractRepresentativeInfo(composition: any): RepresentativeInfo {
     if (pouvoir.individu?.descriptionPersonne) {
       const desc = pouvoir.individu.descriptionPersonne;
       const prenoms = desc.prenoms && desc.prenoms.length > 0 ? desc.prenoms[0] : "";
-      representativeName = `${prenoms} ${desc.nom || ""}`.trim() || "[[à compléter]]";
+      representativeName = `${prenoms} ${desc.nom || ""}`.trim() || FALLBACK_VALUES.REPRESENTATIVE_NAME;
       
       // Use external role mapping configuration
       representativeRole = getRoleName(desc.role || "");
@@ -227,15 +232,15 @@ function buildPersonnePhysiqueMarkdown(data: CompanyData): string {
   const prenomNom = `${prenom} ${nom}`.trim();
 
   const ne = desc?.genre === '2' ? 'Née' : 'Né';
-  const dateNaissance = formatField(desc?.dateDeNaissance, '[[Date de naissance non renseignée]]');
-  const lieuNaissance = formatField(desc?.lieuDeNaissance, '[[Lieu de naissance non renseigné]]');
-  const nationalite = formatField(desc?.nationalite, '[[Nationalité non renseignée]]');
+  const dateNaissance = formatField(desc?.dateDeNaissance, FALLBACK_VALUES.BIRTH_DATE);
+  const lieuNaissance = formatField(desc?.lieuDeNaissance, FALLBACK_VALUES.BIRTH_PLACE);
+  const nationalite = formatField(desc?.nationalite, FALLBACK_VALUES.NATIONALITY);
   
   // Extract address information
   const adresse = personnePhysique.adressePersonne 
     ? formatAddress(personnePhysique.adressePersonne) 
     : formatAddress(personnePhysique.adresseEntreprise);
-  const demeurant = formatField(adresse, '[[Adresse non renseignée]]');
+  const demeurant = formatField(adresse, FALLBACK_VALUES.ADDRESS);
 
   const siren = formatSiren(data.formality.siren);
 

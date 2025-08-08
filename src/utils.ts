@@ -8,6 +8,20 @@ let roleMappings: { [key: string]: string } | null = null;
 
 const FALLBACK_VALUE = "[[à compléter]]";
 
+// User-friendly fallback values for different contexts
+export const FALLBACK_VALUES = {
+  MISSING_DATA: "[[à compléter]]",
+  COMPANY_NAME: "[[Dénomination à compléter]]", 
+  ADDRESS: "[[Adresse à compléter]]",
+  CAPITAL: "[[Montant à compléter]]",
+  RCS_CITY: "[[Ville du greffe à compléter]]",
+  REPRESENTATIVE_NAME: "[[Nom du représentant à compléter]]",
+  REPRESENTATIVE_ROLE: "[[Fonction à compléter]]",
+  BIRTH_DATE: "[[Date de naissance non renseignée]]",
+  BIRTH_PLACE: "[[Lieu de naissance non renseigné]]",
+  NATIONALITY: "[[Nationalité non renseignée]]"
+} as const;
+
 // Mapping des codes de forme juridique INPI vers les libellés complets
 const LEGAL_FORM_MAPPING: { [key: string]: string } = {
   "1000": "Entrepreneur individuel",
@@ -188,6 +202,21 @@ function loadRoleMappings(): { [key: string]: string } {
  * Maps role code to human-readable French role name
  */
 export function getRoleName(roleCode: string): string {
+  if (!roleCode || roleCode.trim() === '') {
+    return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
+  }
+  
   const mappings = loadRoleMappings();
-  return mappings[roleCode] || `Fonction ${roleCode}` || FALLBACK_VALUE;
+  const mappedRole = mappings[roleCode.trim()];
+  
+  if (mappedRole) {
+    return mappedRole;
+  }
+  
+  // If we have a numeric code but no mapping, provide a helpful fallback
+  if (/^\d+$/.test(roleCode.trim())) {
+    return `[[Fonction code ${roleCode} - Mapping à ajouter]]`;
+  }
+  
+  return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
 }
