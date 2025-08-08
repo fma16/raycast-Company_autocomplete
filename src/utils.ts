@@ -22,7 +22,7 @@ export const FALLBACK_VALUES = {
   BIRTH_DATE: "[[Date de naissance non renseignée]]",
   BIRTH_PLACE: "[[Lieu de naissance non renseigné]]",
   NATIONALITY: "[[Nationalité non renseignée]]",
-} as const;
+};
 
 // Mapping des codes de forme juridique INPI vers les libellés complets
 const LEGAL_FORM_MAPPING: { [key: string]: string } = {

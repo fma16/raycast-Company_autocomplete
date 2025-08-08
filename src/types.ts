@@ -33,7 +33,7 @@ export interface AddressInfo {
 export interface RepresentativeInfo {
   name: string;
   role: string;
-  gender: "M" | "F" | "1" | "2" | null;
+  gender: string | null;
 }
 
 // Person description interface for better type safety

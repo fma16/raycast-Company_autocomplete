@@ -186,7 +186,9 @@ function cacheCompanyData(siren: string, data: CompanyData): void {
   // Cleanup old cache entries (keep only last 50 entries)
   if (companyCache.size > 50) {
     const oldestKey = companyCache.keys().next().value;
-    companyCache.delete(oldestKey);
+    if (oldestKey) {
+      companyCache.delete(oldestKey);
+    }
   }
 }
 

@@ -65,10 +65,13 @@ function SearchForm() {
 }
 
 function CompanyDetail({ siren }: { siren: string }) {
-  const { data, isLoading, error } = usePromise(async () => {
-    const token = await login();
-    return await getCompanyInfo(token, siren);
-  }, [siren]);
+  const { data, isLoading, error } = usePromise(
+    async (sirenParam: string) => {
+      const token = await login();
+      return await getCompanyInfo(token, sirenParam);
+    },
+    [siren],
+  );
 
   useEffect(() => {
     if (data) {
@@ -137,9 +140,7 @@ function Metadata({ data }: { data: CompanyData }) {
     const prenoms = desc?.prenoms?.join(" ") || "";
     denomination = `${prenoms} ${desc?.nom || ""}`.trim();
     shareCapital = "N/A";
-    address = formatAddress(
-      personnePhysique.adresseEntreprise as CompanyData["formality"]["content"]["personneMorale"]["adresseEntreprise"],
-    );
+    address = formatAddress(personnePhysique.adresseEntreprise);
     codePostal = personnePhysique.adresseEntreprise?.adresse?.codePostal;
   }
 
