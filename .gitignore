@@ -40,3 +40,6 @@ coverage
 # Fichiers spécifiques au projet
 .claude/
 CLAUDE.md
+
+# Fichiers a conserver en local
+local
