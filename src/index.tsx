@@ -101,7 +101,13 @@ function CompanyDetail({ siren }: { siren: string }) {
       metadata={data ? <Metadata data={data} /> : null}
       actions={
         <ActionPanel>
-          <Action.CopyToClipboard title="Copy to Clipboard" content={markdown} />
+          <Action.CopyToClipboard 
+            title="Copy to Clipboard" 
+            content={{
+              html: markdownToHtml(markdown),
+              text: markdownToPlainText(markdown)
+            }}
+          />
         </ActionPanel>
       }
     />
@@ -180,6 +186,37 @@ function logApiResponse(data: CompanyData) {
       });
     }
   }
+}
+
+/**
+ * Converts markdown to HTML for rich text copying to applications like Word
+ */
+function markdownToHtml(markdown: string): string {
+  return markdown
+    // Convert bold markdown (**text**) to HTML
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Convert italic markdown (*text*) to HTML
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Split into lines and wrap each in paragraph tags
+    .split('\n')
+    .filter(line => line.trim() !== '')
+    .map(line => `<p>${line.trim()}</p>`)
+    .join('');
+}
+
+/**
+ * Converts markdown to plain text (fallback for applications that don't support HTML)
+ */
+function markdownToPlainText(markdown: string): string {
+  return markdown
+    // Remove bold markdown (**text**)
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    // Remove italic markdown (*text*)
+    .replace(/\*(.*?)\*/g, '$1')
+    // Clean up extra whitespace and line breaks
+    .replace(/\n\s*\n\s*\n/g, '\n\n')
+    // Trim leading and trailing whitespace
+    .trim();
 }
 
 /**
