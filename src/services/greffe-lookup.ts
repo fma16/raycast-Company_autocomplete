@@ -28,6 +28,7 @@ async function loadGreffeIndexAsync(): Promise<GreffeIndex> {
   loadingPromise = (async () => {
     try {
       const jsonPath = join(environment.assetsPath, 'greffes-index.json');
+      console.log('Loading greffe index from:', jsonPath);
       const fileContent = await readFile(jsonPath, 'utf-8');
       greffeIndex = JSON.parse(fileContent);
       return greffeIndex!;
@@ -54,7 +55,15 @@ function loadGreffeIndexSync(): GreffeIndex {
   try {
     const jsonPath = join(environment.assetsPath, 'greffes-index.json');
     const fileContent = readFileSync(jsonPath, 'utf-8');
-    greffeIndex = JSON.parse(fileContent);
+    const parsed = JSON.parse(fileContent);
+    
+    // Check if the file has the expected structure
+    if (parsed.byCodePostal) {
+      greffeIndex = parsed.byCodePostal;
+    } else {
+      greffeIndex = parsed;
+    }
+    
     return greffeIndex!;
   } catch (error) {
     console.error('Failed to load greffe index synchronously:', error);

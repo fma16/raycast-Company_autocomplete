@@ -197,11 +197,17 @@ function extractRepresentativeInfo(composition: any): RepresentativeInfo {
       const prenoms = desc.prenoms && desc.prenoms.length > 0 ? desc.prenoms[0] : "";
       representativeName = `${prenoms} ${desc.nom || ""}`.trim() || FALLBACK_VALUES.REPRESENTATIVE_NAME;
       
-      // Use external role mapping configuration
-      representativeRole = getRoleName(desc.role || "");
+      // Get role code from the correct location (roleEntreprise)
+      const roleCode = pouvoir.roleEntreprise || desc.role;
       
-      // Extract gender information
-      if (desc.genre === 'M' || desc.genre === 'F') {
+      representativeRole = getRoleName(roleCode || "");
+      
+      // Extract gender information - handle INPI format where "1" = masculin, "2" = féminin
+      if (desc.genre === '1') {
+        representativeGender = 'M';
+      } else if (desc.genre === '2') {
+        representativeGender = 'F';
+      } else if (desc.genre === 'M' || desc.genre === 'F') {
         representativeGender = desc.genre;
       } else if (desc.sexe === 'M' || desc.sexe === 'F') {
         representativeGender = desc.sexe;

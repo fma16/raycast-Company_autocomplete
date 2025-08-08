@@ -196,7 +196,28 @@ async function loadRoleMappingsAsync(): Promise<{ [key: string]: string }> {
 
   roleMappingsLoadingPromise = (async () => {
     try {
-      const configPath = join(environment.assetsPath, '../src/config/role-mappings.json');
+      // Try multiple possible paths for the role mappings file
+      const possiblePaths = [
+        join(environment.assetsPath, 'role-mappings.json'),
+        join(environment.assetsPath, '../src/config/role-mappings.json'),
+        join(environment.assetsPath, '../../src/config/role-mappings.json'),
+      ];
+      
+      let configPath: string | null = null;
+      for (const path of possiblePaths) {
+        try {
+          if (readFileSync(path, 'utf-8')) {
+            configPath = path;
+            break;
+          }
+        } catch (e) {
+          // Continue trying other paths
+        }
+      }
+      
+      if (!configPath) {
+        throw new Error('Could not find role-mappings.json in any expected location');
+      }
       const fileContent = await readFile(configPath, 'utf-8');
       roleMappings = JSON.parse(fileContent);
       return roleMappings!;
@@ -220,7 +241,30 @@ function loadRoleMappingsSync(): { [key: string]: string } {
   }
 
   try {
-    const configPath = join(environment.assetsPath, '../src/config/role-mappings.json');
+    // Try multiple possible paths for the role mappings file
+    const possiblePaths = [
+      join(environment.assetsPath, 'role-mappings.json'),
+      join(environment.assetsPath, '../src/config/role-mappings.json'),
+      join(environment.assetsPath, '../../src/config/role-mappings.json'),
+    ];
+    
+    let configPath: string | null = null;
+    for (const path of possiblePaths) {
+      try {
+        if (readFileSync(path, 'utf-8')) {
+          configPath = path;
+          break;
+        }
+      } catch (e) {
+        // Continue trying other paths
+      }
+    }
+    
+    if (!configPath) {
+      console.error('Could not find role-mappings.json in any expected location');
+      return {};
+    }
+    
     const fileContent = readFileSync(configPath, 'utf-8');
     roleMappings = JSON.parse(fileContent);
     return roleMappings!;
