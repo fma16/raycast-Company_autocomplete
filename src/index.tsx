@@ -95,23 +95,30 @@ function CompanyDetail({ siren }: { siren: string }) {
     );
   }
 
-  const markdown = data ? buildMarkdown(data) : "";
+  const { data: markdown } = usePromise(async () => {
+    if (data) {
+      return await buildMarkdown(data);
+    }
+    return "";
+  }, [data]);
 
   return (
     <Detail
-      isLoading={isLoading}
-      markdown={markdown}
+      isLoading={isLoading || !markdown}
+      markdown={markdown || ""}
       metadata={data ? <Metadata data={data} /> : null}
       actions={
-        <ActionPanel>
-          <Action.CopyToClipboard
-            title="Copy to Clipboard"
-            content={{
-              html: markdownToHtml(markdown),
-              text: markdownToPlainText(markdown),
-            }}
-          />
-        </ActionPanel>
+        markdown ? (
+          <ActionPanel>
+            <Action.CopyToClipboard
+              title="Copy to Clipboard"
+              content={{
+                html: markdownToHtml(markdown),
+                text: markdownToPlainText(markdown),
+              }}
+            />
+          </ActionPanel>
+        ) : null
       }
     />
   );
@@ -235,15 +242,26 @@ function markdownToPlainText(markdown: string): string {
 /**
  * Extracts and formats representative information from company composition data
  */
-function extractRepresentativeInfo(
+async function extractRepresentativeInfo(
   composition: NonNullable<CompanyData["formality"]["content"]["personneMorale"]>["composition"],
-): RepresentativeInfo {
+): Promise<RepresentativeInfo> {
   let representativeName = FALLBACK_VALUES.REPRESENTATIVE_NAME;
   let representativeRole = FALLBACK_VALUES.REPRESENTATIVE_ROLE;
   let representativeGender = null;
 
+  // Enhanced logging for debugging
+  if (environment.isDevelopment) {
+    console.log("Composition data structure:", JSON.stringify(composition, null, 2));
+  }
+
   if (composition?.pouvoirs && composition.pouvoirs.length > 0) {
     const pouvoir = composition.pouvoirs[0];
+
+    if (environment.isDevelopment) {
+      console.log("First pouvoir:", JSON.stringify(pouvoir, null, 2));
+    }
+
+    // Handle individual representative (person)
     if (pouvoir.individu?.descriptionPersonne) {
       const desc = pouvoir.individu.descriptionPersonne;
       const prenoms = desc.prenoms && desc.prenoms.length > 0 ? desc.prenoms[0] : "";
@@ -270,6 +288,87 @@ function extractRepresentativeInfo(
           representativeGender = "F";
         }
       }
+
+      if (environment.isDevelopment) {
+        console.log("Extracted individual representative:", {
+          name: representativeName,
+          role: representativeRole,
+          gender: representativeGender,
+          roleCode: roleCode,
+        });
+      }
+
+      return { name: representativeName, role: representativeRole, gender: representativeGender };
+    }
+    // Handle corporate representative (company) - recursive lookup
+    else if (pouvoir.entreprise?.denomination) {
+      const entreprise = pouvoir.entreprise;
+      const holdingName = entreprise.denomination || FALLBACK_VALUES.REPRESENTATIVE_NAME;
+
+      // Get role code from roleEntreprise
+      const roleCode = pouvoir.roleEntreprise;
+      const holdingRole = getRoleName(roleCode || "");
+
+      if (environment.isDevelopment) {
+        console.log("Found corporate representative - fetching holding data:", {
+          holdingName: holdingName,
+          holdingRole: holdingRole,
+          holdingSiren: entreprise.siren,
+          roleCode: roleCode,
+        });
+      }
+
+      // If we have a SIREN for the holding company, fetch its data to get the human representative
+      if (entreprise.siren) {
+        try {
+          const token = await login();
+          const holdingData = await getCompanyInfo(token, entreprise.siren);
+
+          if (holdingData?.formality?.content?.personneMorale?.composition) {
+            // Recursively extract the holding's representative
+            const holdingRepresentativeInfo = await extractRepresentativeInfo(
+              holdingData.formality.content.personneMorale.composition,
+            );
+
+            if (environment.isDevelopment) {
+              console.log("Successfully fetched holding representative:", holdingRepresentativeInfo);
+            }
+
+            return {
+              name: holdingName,
+              role: holdingRole,
+              gender: null,
+              isHolding: true,
+              holdingRepresentative: {
+                name: holdingRepresentativeInfo.name,
+                role: holdingRepresentativeInfo.role,
+                gender: holdingRepresentativeInfo.gender,
+              },
+            };
+          }
+        } catch (error) {
+          if (environment.isDevelopment) {
+            console.log("Failed to fetch holding data, using fallback:", error);
+          }
+          // If we can't fetch holding data, return the holding info without cascade
+        }
+      }
+
+      // Fallback when we can't fetch holding data
+      return {
+        name: holdingName,
+        role: holdingRole,
+        gender: null,
+        isHolding: true,
+      };
+    } else {
+      if (environment.isDevelopment) {
+        console.log("No valid representative found in pouvoir - neither individu nor entreprise");
+      }
+    }
+  } else {
+    if (environment.isDevelopment) {
+      console.log("No pouvoirs found or empty array");
     }
   }
 
@@ -312,7 +411,7 @@ N° : ${siren}`;
 /**
  * Builds markdown for corporate entities (personneMorale)
  */
-function buildPersonneMoraleMarkdown(data: CompanyData): string {
+async function buildPersonneMoraleMarkdown(data: CompanyData): Promise<string> {
   const content = data.formality.content;
   const personneMorale = content.personneMorale!;
   const natureCreation = content.natureCreation;
@@ -339,9 +438,32 @@ Immatriculée au RCS de ${rcsCity} sous le n° ${sirenFormatted}
 Dont le siège social est situé ${address}`;
 
   // Extract representative information
-  const representative = extractRepresentativeInfo(personneMorale.composition);
-  const genderAgreement = getGenderAgreement(representative.gender);
-  const representativeLine = `Représentée aux fins des présentes par ${representative.name} en sa qualité de ${representative.role}, dûment ${genderAgreement}.`;
+  const representative = await extractRepresentativeInfo(personneMorale.composition);
+
+  let representativeLine: string;
+  if (representative.isHolding && representative.holdingRepresentative) {
+    // Format cascade representation for holding companies
+    const holdingGenderAgreement = getGenderAgreement(representative.holdingRepresentative.gender);
+    const civilite = representative.holdingRepresentative.gender === "F" ? "Mme" : "M.";
+
+    if (environment.isDevelopment) {
+      console.log("Cascade formatting debug:", {
+        holdingGender: representative.holdingRepresentative.gender,
+        holdingGenderAgreement: holdingGenderAgreement,
+        civilite: civilite,
+        holdingName: representative.holdingRepresentative.name,
+      });
+    }
+
+    representativeLine = `Représentée aux fins des présentes par ${representative.name} en tant que ${representative.role}, elle-même représentée par ${civilite} ${representative.holdingRepresentative.name}, en sa qualité de ${representative.holdingRepresentative.role}, dûment ${holdingGenderAgreement}.`;
+  } else if (representative.isHolding) {
+    // Fallback for holding companies without human representative data
+    representativeLine = `Représentée aux fins des présentes par ${representative.name} en tant que ${representative.role}, [[représentant de la holding à compléter]].`;
+  } else {
+    // Standard individual representative
+    const genderAgreement = getGenderAgreement(representative.gender);
+    representativeLine = `Représentée aux fins des présentes par ${representative.name} en sa qualité de ${representative.role}, dûment ${genderAgreement}.`;
+  }
 
   return `
 ${title}
@@ -355,7 +477,7 @@ ${representativeLine}
 /**
  * Main function to build markdown based on company type
  */
-function buildMarkdown(data: CompanyData): string {
+async function buildMarkdown(data: CompanyData): Promise<string> {
   const content = data.formality.content;
 
   if (content.personnePhysique) {
@@ -363,7 +485,7 @@ function buildMarkdown(data: CompanyData): string {
   }
 
   if (content.personneMorale) {
-    return buildPersonneMoraleMarkdown(data);
+    return await buildPersonneMoraleMarkdown(data);
   }
 
   return "Aucune information à afficher.";

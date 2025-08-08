@@ -34,6 +34,13 @@ export interface RepresentativeInfo {
   name: string;
   role: string;
   gender: string | null;
+  // For cascade representation when representative is a holding company
+  isHolding?: boolean;
+  holdingRepresentative?: {
+    name: string;
+    role: string;
+    gender: string | null;
+  };
 }
 
 // Person description interface for better type safety
@@ -97,6 +104,11 @@ export interface CompanyData {
             individu?: {
               descriptionPersonne?: PersonDescription;
             };
+            entreprise?: {
+              denomination?: string;
+              siren?: string;
+            };
+            roleEntreprise?: string;
           }>;
         };
       };
