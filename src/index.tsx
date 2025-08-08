@@ -43,7 +43,7 @@ function SearchForm() {
     <Form
       actions={
         <ActionPanel>
-          <Action title="Search Company" onAction={handleAction} />
+          <Action title="Search Company" onAction={handleAction} shortcut={{ modifiers: [], key: "return" }} />
         </ActionPanel>
       }
     >
