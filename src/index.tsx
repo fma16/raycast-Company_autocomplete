@@ -12,8 +12,7 @@ import {
   validateAndExtractSiren,
 } from "./utils";
 import { findGreffeByCodePostal } from "./greffes";
-import * as fs from "fs";
-import * as path from "path";
+// Removed fs and path imports - no longer needed for file-based logging
 
 export default function Command() {
   return <SearchForm />;
@@ -155,36 +154,25 @@ function Metadata({ data }: { data: CompanyData }) {
 }
 
 function logApiResponse(data: CompanyData) {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const findProjectRoot = (startPath: string): string => {
-    let currentPath = startPath;
-    while (currentPath !== path.dirname(currentPath)) {
-      if (fs.existsSync(path.join(currentPath, 'package.json'))) {
-        return currentPath;
-      }
-      currentPath = path.dirname(currentPath);
-    }
-    return startPath;
-  };
-  
-  const projectRoot = findProjectRoot(__filename);
-  const logsDir = path.join(projectRoot, 'logs');
-  const logFile = path.join(logsDir, `inpi-${data.formality.siren}-${timestamp}.json`);
-  
-  try {
-    if (!fs.existsSync(logsDir)) {
-      fs.mkdirSync(logsDir, { recursive: true });
-    }
-    const logData = {
-      timestamp: new Date().toISOString(),
+  // Only log in development environment to prevent sensitive data exposure
+  if (environment.isDevelopment) {
+    console.log('INPI API Response received:', {
       siren: data.formality.siren,
-      note: "Complete INPI API response - all data from the API call",
-      inpiApiResponse: data
-    };
-    fs.writeFileSync(logFile, JSON.stringify(logData, null, 2));
-    console.log(`LOGS SAVED TO: ${logFile}`);
-  } catch (error) {
-    console.error('Failed to write log file:', error);
+      timestamp: new Date().toISOString(),
+      hasPersonneMorale: !!data.formality.content.personneMorale,
+      hasPersonnePhysique: !!data.formality.content.personnePhysique,
+      representantsCount: data.nombreRepresentantsActifs,
+      etablissementsCount: data.nombreEtablissementsOuverts
+    });
+    
+    // Log structure for debugging without sensitive data
+    if (data.formality.content.personneMorale) {
+      console.log('PersonneMorale structure available:', {
+        hasIdentite: !!data.formality.content.personneMorale.identite,
+        hasComposition: !!data.formality.content.personneMorale.composition,
+        hasAdresse: !!data.formality.content.personneMorale.adresseEntreprise
+      });
+    }
   }
 }
 
