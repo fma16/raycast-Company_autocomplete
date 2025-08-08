@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getPreferenceValues } from "@raycast/api";
-import { ApiLoginResponse, CompanyData, Preferences } from "./types";
+import { ApiLoginResponse, CompanyData, Preferences } from "../types";
 
 // Rate limiting state
 const apiCallTimes: number[] = [];
@@ -60,7 +60,8 @@ async function withRetry<T>(
       
       // Calculate delay with exponential backoff
       const delay = baseDelay * Math.pow(2, attempt);
-      console.log(`API call failed, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);\n      
+      console.log(`API call failed, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+      
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }

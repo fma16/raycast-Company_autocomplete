@@ -1,4 +1,10 @@
 import { CompanyData } from "./types";
+import { readFileSync } from "fs";
+import { join } from "path";
+import { environment } from "@raycast/api";
+
+// Cache for role mappings to avoid repeated file reads
+let roleMappings: { [key: string]: string } | null = null;
 
 const FALLBACK_VALUE = "[[à compléter]]";
 
@@ -157,4 +163,31 @@ export function formatSiren(siren: string): string {
     return `${siren.slice(0, 3)} ${siren.slice(3, 6)} ${siren.slice(6, 9)}`;
   }
   return siren;
+}
+
+/**
+ * Loads role mappings from external configuration file
+ */
+function loadRoleMappings(): { [key: string]: string } {
+  if (roleMappings !== null) {
+    return roleMappings;
+  }
+
+  try {
+    const configPath = join(environment.assetsPath, '../src/config/role-mappings.json');
+    const fileContent = readFileSync(configPath, 'utf-8');
+    roleMappings = JSON.parse(fileContent);
+    return roleMappings!;
+  } catch (error) {
+    console.error('Failed to load role mappings:', error);
+    return {};
+  }
+}
+
+/**
+ * Maps role code to human-readable French role name
+ */
+export function getRoleName(roleCode: string): string {
+  const mappings = loadRoleMappings();
+  return mappings[roleCode] || `Fonction ${roleCode}` || FALLBACK_VALUE;
 }

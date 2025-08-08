@@ -1,7 +1,7 @@
 import { Action, ActionPanel, Detail, Form, Icon, useNavigation, useForm, environment } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useState, useEffect } from "react";
-import { getCompanyInfo, login } from "./api";
+import { getCompanyInfo, login } from "./services/inpi-api";
 import { CompanyData } from "./types";
 import {
   formatAddress,
@@ -9,9 +9,10 @@ import {
   formatSiren,
   getGenderAgreement,
   getLegalFormLabel,
+  getRoleName,
   validateAndExtractSiren,
 } from "./utils";
-import { findGreffeByCodePostal } from "./greffes";
+import { findGreffeByCodePostal } from "./services/greffe-lookup";
 // Removed fs and path imports - no longer needed for file-based logging
 
 export default function Command() {
@@ -195,27 +196,8 @@ function extractRepresentativeInfo(composition: any): {
       const prenoms = desc.prenoms && desc.prenoms.length > 0 ? desc.prenoms[0] : "";
       representativeName = `${prenoms} ${desc.nom || ""}`.trim() || "[[à compléter]]";
       
-      // Role mapping - TODO: Move to external config
-      const roleMapping: { [key: string]: string } = {
-        "11": "Membre", "13": "Contrôleur de gestion", "14": "Contrôleur des comptes", 
-        "23": "Autre associé majoritaire", "28": "Gérant et associé indéfiniment et solidairement responsable", 
-        "29": "Liquidateur", "30": "Gérant", "40": "Liquidateur", 
-        "51": "Président du conseil d'administration", "52": "Président du directoire", 
-        "53": "Directeur Général", "55": "Dirigeant à l'étranger", "56": "Dirigeant en France", 
-        "60": "Président-directeur général", "61": "Président du conseil de surveillance", 
-        "63": "Membre du directoire", "64": "Membre du conseil de surveillance", "65": "Administrateur", 
-        "66": "Pouvoir d'engager à titre habituel", "67": "Pouvoir d'engager l'établissement", 
-        "69": "Directeur général unique", "70": "Directeur général délégué", 
-        "71": "Commissaire aux comptes titulaire", "72": "Commissaire aux comptes suppléant", 
-        "73": "Président", "74": "Associé indéfiniment et solidairement responsable", 
-        "75": "Associé indéfiniment responsable", "76": "Représentant social à l'étranger", 
-        "77": "Représentant fiscal à l'étranger", "82": "Indivisaire", 
-        "86": "Exploitant pour le compte de l'indivision", "90": "Exploitant en commun", 
-        "97": "Mandataire ad hoc", "98": "Administrateur provisoire", "99": "Autre", 
-        "100": "Repreneur", "101": "Entrepreneur", "105": "Personne décisionnaire désignée", 
-        "110": "Vice-président", "201": "Dirigeant", "205": "Président"
-      };
-      representativeRole = roleMapping[desc.role || ""] || `Fonction ${desc.role}` || "[[à compléter]]";
+      // Use external role mapping configuration
+      representativeRole = getRoleName(desc.role || "");
       
       // Extract gender information
       if (desc.genre === 'M' || desc.genre === 'F') {
