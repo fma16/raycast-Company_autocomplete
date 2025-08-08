@@ -2,7 +2,7 @@ import { Action, ActionPanel, Detail, Form, Icon, useNavigation, useForm, enviro
 import { usePromise } from "@raycast/utils";
 import { useState, useEffect } from "react";
 import { getCompanyInfo, login } from "./services/inpi-api";
-import { CompanyData } from "./types";
+import { CompanyData, RepresentativeInfo, PersonDescription } from "./types";
 import {
   formatAddress,
   formatField,
@@ -180,11 +180,7 @@ function logApiResponse(data: CompanyData) {
 /**
  * Extracts and formats representative information from company composition data
  */
-function extractRepresentativeInfo(composition: any): {
-  name: string;
-  role: string;
-  gender: 'M' | 'F' | '1' | '2' | null;
-} {
+function extractRepresentativeInfo(composition: any): RepresentativeInfo {
   let representativeName = "[[à compléter]]";
   let representativeRole = "[[à compléter]]";
   let representativeGender = null;
@@ -237,8 +233,8 @@ function buildPersonnePhysiqueMarkdown(data: CompanyData): string {
   
   // Extract address information
   const adresse = personnePhysique.adressePersonne 
-    ? formatAddress(personnePhysique.adressePersonne as any) 
-    : formatAddress(personnePhysique.adresseEntreprise as any);
+    ? formatAddress(personnePhysique.adressePersonne) 
+    : formatAddress(personnePhysique.adresseEntreprise);
   const demeurant = formatField(adresse, '[[Adresse non renseignée]]');
 
   const siren = formatSiren(data.formality.siren);

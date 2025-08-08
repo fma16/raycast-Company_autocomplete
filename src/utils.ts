@@ -1,4 +1,4 @@
-import { CompanyData } from "./types";
+import { CompanyData, AddressInfo } from "./types";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { environment } from "@raycast/api";
@@ -128,7 +128,7 @@ export function formatField<T>(value: T | null | undefined, fallback = FALLBACK_
     return String(value);
 }
 
-export function formatAddress(address: any): string {
+export function formatAddress(address: AddressInfo): string {
   if (!address || !address.adresse) return FALLBACK_VALUE;
 
   const addr = address.adresse;

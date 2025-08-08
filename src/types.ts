@@ -3,6 +3,52 @@ export interface Preferences {
   inpiPassword: string;
 }
 
+// Common address interface to replace 'any' types
+export interface AddressInfo {
+  adresse: {
+    roleAdressePresent?: boolean;
+    codePostalPresent?: boolean;
+    communePresent?: boolean;
+    codeInseeCommunePresent?: boolean;
+    complementLocalisation?: string;
+    numeroVoie?: string;
+    numVoie?: string;
+    indiceRepetition?: string;
+    typeVoie?: string;
+    voie?: string;
+    libelleVoie?: string;
+    codePostal?: string;
+    commune?: string;
+    codeInseeCommune?: string;
+    pays?: string;
+    codePays?: string;
+  };
+  caracteristiques?: {
+    domiciliataire?: boolean;
+    ambulant?: boolean;
+  };
+}
+
+// Representative information interface
+export interface RepresentativeInfo {
+  name: string;
+  role: string;
+  gender: 'M' | 'F' | '1' | '2' | null;
+}
+
+// Person description interface for better type safety
+export interface PersonDescription {
+  role?: string;
+  nom?: string;
+  prenoms?: string[];
+  genre?: string;
+  sexe?: string;
+  civilite?: string;
+  nationalite?: string;
+  dateDeNaissance?: string;
+  lieuDeNaissance?: string;
+}
+
 export interface ApiLoginResponse {
   token: string;
 }
@@ -37,11 +83,7 @@ export interface CompanyData {
           villeImmatriculation: string;
           numeroRcs: string;
         };
-        adresseEntreprise: {
-          adresse: {
-            codePostal?: string;
-          };
-        };
+        adresseEntreprise: AddressInfo;
         identite?: {
           entreprise?: {
             denomination?: string;
@@ -53,14 +95,7 @@ export interface CompanyData {
         composition?: {
           pouvoirs?: Array<{
             individu?: {
-              descriptionPersonne?: {
-                role?: string;
-                nom?: string;
-                prenoms?: string[];
-                genre?: string;
-                sexe?: string;
-                civilite?: string;
-              };
+              descriptionPersonne?: PersonDescription;
             };
           }>;
         };
@@ -68,26 +103,11 @@ export interface CompanyData {
       personnePhysique?: {
         identite?: {
           entrepreneur?: {
-            descriptionPersonne: {
-              nom?: string;
-              prenoms?: string[];
-              genre?: string;
-              nationalite?: string;
-              dateDeNaissance?: string;
-              lieuDeNaissance?: string;
-            };
+            descriptionPersonne: PersonDescription;
           };
         };
-        adresseEntreprise: {
-          adresse: {
-            codePostal?: string;
-          };
-        };
-        adressePersonne?: {
-           adresse: {
-            codePostal?: string;
-          };
-        };
+        adresseEntreprise: AddressInfo;
+        adressePersonne?: AddressInfo;
       };
     };
   };
