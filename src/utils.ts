@@ -1,10 +1,12 @@
 import { CompanyData, AddressInfo } from "./types";
+import { readFile } from "fs/promises";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { environment } from "@raycast/api";
 
 // Cache for role mappings to avoid repeated file reads
 let roleMappings: { [key: string]: string } | null = null;
+let roleMappingsLoadingPromise: Promise<{ [key: string]: string }> | null = null;
 
 const FALLBACK_VALUE = "[[à compléter]]";
 
@@ -180,9 +182,39 @@ export function formatSiren(siren: string): string {
 }
 
 /**
- * Loads role mappings from external configuration file
+ * Loads role mappings from external configuration file asynchronously
  */
-function loadRoleMappings(): { [key: string]: string } {
+async function loadRoleMappingsAsync(): Promise<{ [key: string]: string }> {
+  if (roleMappings !== null) {
+    return roleMappings;
+  }
+
+  // If already loading, return the existing promise
+  if (roleMappingsLoadingPromise !== null) {
+    return roleMappingsLoadingPromise;
+  }
+
+  roleMappingsLoadingPromise = (async () => {
+    try {
+      const configPath = join(environment.assetsPath, '../src/config/role-mappings.json');
+      const fileContent = await readFile(configPath, 'utf-8');
+      roleMappings = JSON.parse(fileContent);
+      return roleMappings!;
+    } catch (error) {
+      console.error('Failed to load role mappings asynchronously:', error);
+      // Reset loading promise on error to allow retry
+      roleMappingsLoadingPromise = null;
+      return {};
+    }
+  })();
+
+  return roleMappingsLoadingPromise;
+}
+
+/**
+ * Loads role mappings from external configuration file synchronously (fallback)
+ */
+function loadRoleMappingsSync(): { [key: string]: string } {
   if (roleMappings !== null) {
     return roleMappings;
   }
@@ -193,7 +225,7 @@ function loadRoleMappings(): { [key: string]: string } {
     roleMappings = JSON.parse(fileContent);
     return roleMappings!;
   } catch (error) {
-    console.error('Failed to load role mappings:', error);
+    console.error('Failed to load role mappings synchronously:', error);
     return {};
   }
 }
@@ -206,7 +238,7 @@ export function getRoleName(roleCode: string): string {
     return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
   }
   
-  const mappings = loadRoleMappings();
+  const mappings = loadRoleMappingsSync();
   const mappedRole = mappings[roleCode.trim()];
   
   if (mappedRole) {
@@ -219,4 +251,41 @@ export function getRoleName(roleCode: string): string {
   }
   
   return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
+}
+
+/**
+ * Maps role code to human-readable French role name asynchronously
+ * Preferred method for better performance
+ */
+export async function getRoleNameAsync(roleCode: string): Promise<string> {
+  if (!roleCode || roleCode.trim() === '') {
+    return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
+  }
+  
+  const mappings = await loadRoleMappingsAsync();
+  const mappedRole = mappings[roleCode.trim()];
+  
+  if (mappedRole) {
+    return mappedRole;
+  }
+  
+  // If we have a numeric code but no mapping, provide a helpful fallback
+  if (/^\d+$/.test(roleCode.trim())) {
+    return `[[Fonction code ${roleCode} - Mapping à ajouter]]`;
+  }
+  
+  return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
+}
+
+/**
+ * Preloads role mappings to improve performance of subsequent lookups
+ * Call this during application initialization
+ */
+export async function preloadRoleMappings(): Promise<void> {
+  try {
+    await loadRoleMappingsAsync();
+    console.log('Role mappings preloaded successfully');
+  } catch (error) {
+    console.error('Failed to preload role mappings:', error);
+  }
 }

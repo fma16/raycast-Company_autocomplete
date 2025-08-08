@@ -6,6 +6,15 @@ import { ApiLoginResponse, CompanyData, Preferences } from "../types";
 const apiCallTimes: number[] = [];
 const MAX_CALLS_PER_MINUTE = 30; // Conservative limit to prevent API abuse
 
+// Simple cache for API responses
+interface CacheEntry {
+  data: CompanyData;
+  timestamp: number;
+}
+
+const companyCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache
+
 const API_BASE_URL = "https://registre-national-entreprises.inpi.fr";
 
 /**
@@ -147,7 +156,47 @@ export async function login(): Promise<string> {
   });
 }
 
+/**
+ * Checks if cached data is still valid
+ */
+function getCachedCompanyData(siren: string): CompanyData | null {
+  const cached = companyCache.get(siren);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`Using cached data for SIREN ${siren}`);
+    return cached.data;
+  }
+  
+  // Remove expired cache entry
+  if (cached) {
+    companyCache.delete(siren);
+  }
+  
+  return null;
+}
+
+/**
+ * Caches company data for future requests
+ */
+function cacheCompanyData(siren: string, data: CompanyData): void {
+  companyCache.set(siren, {
+    data,
+    timestamp: Date.now()
+  });
+  
+  // Cleanup old cache entries (keep only last 50 entries)
+  if (companyCache.size > 50) {
+    const oldestKey = companyCache.keys().next().value;
+    companyCache.delete(oldestKey);
+  }
+}
+
 export async function getCompanyInfo(token: string, siren: string): Promise<CompanyData> {
+  // Check cache first
+  const cachedData = getCachedCompanyData(siren);
+  if (cachedData) {
+    return cachedData;
+  }
+
   // Check rate limit before making request
   checkRateLimit();
 
@@ -157,6 +206,9 @@ export async function getCompanyInfo(token: string, siren: string): Promise<Comp
       
       console.log(`Fetching INPI data for SIREN ${siren}`);
       const inpiResponse = await apiClient.get(`/api/companies/${siren}`);
+      
+      // Cache the successful response
+      cacheCompanyData(siren, inpiResponse.data);
       
       return inpiResponse.data;
     } catch (error) {
@@ -179,4 +231,13 @@ export async function getCompanyInfo(token: string, siren: string): Promise<Comp
       throw new Error("Network error: Failed to fetch company data. Please check your internet connection and try again.");
     }
   });
+}
+
+/**
+ * Clears the company data cache
+ * Useful for testing or when fresh data is required
+ */
+export function clearCompanyCache(): void {
+  companyCache.clear();
+  console.log('Company data cache cleared');
 }
