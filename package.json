@@ -1,18 +1,22 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "base-rne-inpi",
-  "title": "Base RNE INPI",
-  "description": "Permet d'obtenir, à partir d'un numéro SIREN, les informations essentielles d'une société pour pouvoir les intégrer, dans un format spécifique, au sein des encarts de désignation des parties des contrats.",
+  "name": "french-company-search",
+  "title": "French Company Search",
+  "description": "Search French company information using SIREN/SIRET numbers via INPI API. Get formatted legal details ready for contracts and documents.",
   "icon": "extension-icon.png",
   "author": "fma16",
   "license": "MIT",
   "commands": [
     {
       "name": "index",
-      "title": "SIREN",
-      "description": "",
+      "title": "Search French Company",
+      "description": "Search company information using SIREN or SIRET number",
       "mode": "view"
     }
+  ],
+  "categories": [
+    "Finance",
+    "Productivity"
   ],
   "dependencies": {
     "@raycast/api": "^1.70.0",
@@ -23,14 +27,14 @@
     {
       "name": "inpiUsername",
       "title": "INPI Username",
-      "description": "Your username for the INPI API.",
+      "description": "Your username (email) for the INPI API access.",
       "type": "textfield",
       "required": true
     },
     {
       "name": "inpiPassword",
       "title": "INPI Password",
-      "description": "Your password for the INPI API.",
+      "description": "Your password for the INPI API access.",
       "type": "password",
       "required": true
     }

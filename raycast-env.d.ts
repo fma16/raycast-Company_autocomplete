@@ -8,9 +8,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 type ExtensionPreferences = {
-  /** INPI Username - Your username for the INPI API. */
+  /** INPI Username - Your username (email) for the INPI API access. */
   "inpiUsername": string,
-  /** INPI Password - Your password for the INPI API. */
+  /** INPI Password - Your password for the INPI API access. */
   "inpiPassword": string
 }
 

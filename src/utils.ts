@@ -1,4 +1,4 @@
-import { CompanyData, AddressInfo } from "./types";
+import { AddressInfo } from "./types";
 import { readFile } from "fs/promises";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -13,7 +13,7 @@ const FALLBACK_VALUE = "[[à compléter]]";
 // User-friendly fallback values for different contexts
 export const FALLBACK_VALUES = {
   MISSING_DATA: "[[à compléter]]",
-  COMPANY_NAME: "[[Dénomination à compléter]]", 
+  COMPANY_NAME: "[[Dénomination à compléter]]",
   ADDRESS: "[[Adresse à compléter]]",
   CAPITAL: "[[Montant à compléter]]",
   RCS_CITY: "[[Ville du greffe à compléter]]",
@@ -21,7 +21,7 @@ export const FALLBACK_VALUES = {
   REPRESENTATIVE_ROLE: "[[Fonction à compléter]]",
   BIRTH_DATE: "[[Date de naissance non renseignée]]",
   BIRTH_PLACE: "[[Lieu de naissance non renseigné]]",
-  NATIONALITY: "[[Nationalité non renseignée]]"
+  NATIONALITY: "[[Nationalité non renseignée]]",
 } as const;
 
 // Mapping des codes de forme juridique INPI vers les libellés complets
@@ -135,13 +135,13 @@ export function validateAndExtractSiren(input: string): string | null {
 }
 
 export function formatField<T>(value: T | null | undefined, fallback = FALLBACK_VALUE): string {
-    if (value === null || value === undefined || value === "") {
-        return fallback;
-    }
-    if (typeof value === 'number') {
-        return value.toString();
-    }
-    return String(value);
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+  if (typeof value === "number") {
+    return value.toString();
+  }
+  return String(value);
 }
 
 export function formatAddress(address: AddressInfo): string {
@@ -164,10 +164,10 @@ export function formatAddress(address: AddressInfo): string {
   return `${street}, ${city}`.trim();
 }
 
-export function getGenderAgreement(gender: 'M' | 'F' | '1' | '2' | null): string {
-  if (gender === 'M' || gender === '1') return 'habilité';
-  if (gender === 'F' || gender === '2') return 'habilitée';
-  return 'habilité(e)';
+export function getGenderAgreement(gender: "M" | "F" | "1" | "2" | null): string {
+  if (gender === "M" || gender === "1") return "habilité";
+  if (gender === "F" || gender === "2") return "habilitée";
+  return "habilité(e)";
 }
 
 export function getLegalFormLabel(code: string): string {
@@ -198,31 +198,31 @@ async function loadRoleMappingsAsync(): Promise<{ [key: string]: string }> {
     try {
       // Try multiple possible paths for the role mappings file
       const possiblePaths = [
-        join(environment.assetsPath, 'role-mappings.json'),
-        join(environment.assetsPath, '../src/config/role-mappings.json'),
-        join(environment.assetsPath, '../../src/config/role-mappings.json'),
+        join(environment.assetsPath, "role-mappings.json"),
+        join(environment.assetsPath, "../src/config/role-mappings.json"),
+        join(environment.assetsPath, "../../src/config/role-mappings.json"),
       ];
-      
+
       let configPath: string | null = null;
       for (const path of possiblePaths) {
         try {
-          if (readFileSync(path, 'utf-8')) {
+          if (readFileSync(path, "utf-8")) {
             configPath = path;
             break;
           }
-        } catch (e) {
+        } catch {
           // Continue trying other paths
         }
       }
-      
+
       if (!configPath) {
-        throw new Error('Could not find role-mappings.json in any expected location');
+        throw new Error("Could not find role-mappings.json in any expected location");
       }
-      const fileContent = await readFile(configPath, 'utf-8');
+      const fileContent = await readFile(configPath, "utf-8");
       roleMappings = JSON.parse(fileContent);
       return roleMappings!;
     } catch (error) {
-      console.error('Failed to load role mappings asynchronously:', error);
+      console.error("Failed to load role mappings asynchronously:", error);
       // Reset loading promise on error to allow retry
       roleMappingsLoadingPromise = null;
       return {};
@@ -243,33 +243,33 @@ function loadRoleMappingsSync(): { [key: string]: string } {
   try {
     // Try multiple possible paths for the role mappings file
     const possiblePaths = [
-      join(environment.assetsPath, 'role-mappings.json'),
-      join(environment.assetsPath, '../src/config/role-mappings.json'),
-      join(environment.assetsPath, '../../src/config/role-mappings.json'),
+      join(environment.assetsPath, "role-mappings.json"),
+      join(environment.assetsPath, "../src/config/role-mappings.json"),
+      join(environment.assetsPath, "../../src/config/role-mappings.json"),
     ];
-    
+
     let configPath: string | null = null;
     for (const path of possiblePaths) {
       try {
-        if (readFileSync(path, 'utf-8')) {
+        if (readFileSync(path, "utf-8")) {
           configPath = path;
           break;
         }
-      } catch (e) {
+      } catch {
         // Continue trying other paths
       }
     }
-    
+
     if (!configPath) {
-      console.error('Could not find role-mappings.json in any expected location');
+      console.error("Could not find role-mappings.json in any expected location");
       return {};
     }
-    
-    const fileContent = readFileSync(configPath, 'utf-8');
+
+    const fileContent = readFileSync(configPath, "utf-8");
     roleMappings = JSON.parse(fileContent);
     return roleMappings!;
   } catch (error) {
-    console.error('Failed to load role mappings synchronously:', error);
+    console.error("Failed to load role mappings synchronously:", error);
     return {};
   }
 }
@@ -278,22 +278,22 @@ function loadRoleMappingsSync(): { [key: string]: string } {
  * Maps role code to human-readable French role name
  */
 export function getRoleName(roleCode: string): string {
-  if (!roleCode || roleCode.trim() === '') {
+  if (!roleCode || roleCode.trim() === "") {
     return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
   }
-  
+
   const mappings = loadRoleMappingsSync();
   const mappedRole = mappings[roleCode.trim()];
-  
+
   if (mappedRole) {
     return mappedRole;
   }
-  
+
   // If we have a numeric code but no mapping, provide a helpful fallback
   if (/^\d+$/.test(roleCode.trim())) {
     return `[[Fonction code ${roleCode} - Mapping à ajouter]]`;
   }
-  
+
   return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
 }
 
@@ -302,22 +302,22 @@ export function getRoleName(roleCode: string): string {
  * Preferred method for better performance
  */
 export async function getRoleNameAsync(roleCode: string): Promise<string> {
-  if (!roleCode || roleCode.trim() === '') {
+  if (!roleCode || roleCode.trim() === "") {
     return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
   }
-  
+
   const mappings = await loadRoleMappingsAsync();
   const mappedRole = mappings[roleCode.trim()];
-  
+
   if (mappedRole) {
     return mappedRole;
   }
-  
+
   // If we have a numeric code but no mapping, provide a helpful fallback
   if (/^\d+$/.test(roleCode.trim())) {
     return `[[Fonction code ${roleCode} - Mapping à ajouter]]`;
   }
-  
+
   return FALLBACK_VALUES.REPRESENTATIVE_ROLE;
 }
 
@@ -328,8 +328,8 @@ export async function getRoleNameAsync(roleCode: string): Promise<string> {
 export async function preloadRoleMappings(): Promise<void> {
   try {
     await loadRoleMappingsAsync();
-    console.log('Role mappings preloaded successfully');
+    console.log("Role mappings preloaded successfully");
   } catch (error) {
-    console.error('Failed to preload role mappings:', error);
+    console.error("Failed to preload role mappings:", error);
   }
 }

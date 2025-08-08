@@ -23,17 +23,19 @@ const API_BASE_URL = "https://registre-national-entreprises.inpi.fr";
 function checkRateLimit(): void {
   const now = Date.now();
   const oneMinuteAgo = now - 60000;
-  
+
   // Remove old entries
   while (apiCallTimes.length > 0 && apiCallTimes[0] < oneMinuteAgo) {
     apiCallTimes.shift();
   }
-  
+
   // Check if we're over the limit
   if (apiCallTimes.length >= MAX_CALLS_PER_MINUTE) {
-    throw new Error(`Rate limit exceeded: Maximum ${MAX_CALLS_PER_MINUTE} requests per minute. Please wait a moment and try again.`);
+    throw new Error(
+      `Rate limit exceeded: Maximum ${MAX_CALLS_PER_MINUTE} requests per minute. Please wait a moment and try again.`,
+    );
   }
-  
+
   // Record this call
   apiCallTimes.push(now);
 }
@@ -41,19 +43,15 @@ function checkRateLimit(): void {
 /**
  * Implements retry logic with exponential backoff
  */
-async function withRetry<T>(
-  operation: () => Promise<T>,
-  maxRetries = 3,
-  baseDelay = 1000
-): Promise<T> {
+async function withRetry<T>(operation: () => Promise<T>, maxRetries = 3, baseDelay = 1000): Promise<T> {
   let lastError: Error;
-  
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await operation();
     } catch (error) {
       lastError = error as Error;
-      
+
       // Don't retry on authentication errors or client errors (4xx)
       if (axios.isAxiosError(error) && error.response) {
         const status = error.response.status;
@@ -61,20 +59,20 @@ async function withRetry<T>(
           throw error;
         }
       }
-      
+
       // Don't retry on the last attempt
       if (attempt === maxRetries) {
         throw error;
       }
-      
+
       // Calculate delay with exponential backoff
       const delay = baseDelay * Math.pow(2, attempt);
       console.log(`API call failed, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
-      
-      await new Promise(resolve => setTimeout(resolve, delay));
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
-  
+
   throw lastError!;
 }
 
@@ -99,17 +97,17 @@ function validateCredentials(username: string, password: string): void {
   if (!username || username.trim().length === 0) {
     throw new Error("INPI username is required. Please configure it in Raycast preferences.");
   }
-  
+
   if (!password || password.trim().length === 0) {
     throw new Error("INPI password is required. Please configure it in Raycast preferences.");
   }
-  
+
   // Basic format validation for username (email format expected)
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(username.trim())) {
     throw new Error("INPI username must be a valid email address.");
   }
-  
+
   // Password strength validation
   if (password.length < 6) {
     throw new Error("INPI password appears invalid (too short). Please check your credentials.");
@@ -132,7 +130,7 @@ export async function login(): Promise<string> {
         username: inpiUsername.trim(),
         password: inpiPassword,
       });
-      
+
       if (response.data && response.data.token) {
         return response.data.token;
       }
@@ -140,7 +138,9 @@ export async function login(): Promise<string> {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
-          throw new Error("Authentication failed: Invalid INPI credentials. Please check your username and password in Raycast preferences.");
+          throw new Error(
+            "Authentication failed: Invalid INPI credentials. Please check your username and password in Raycast preferences.",
+          );
         }
         if (error.response?.status === 403) {
           throw new Error("Access denied: Your INPI account may not have API access. Please contact INPI support.");
@@ -149,7 +149,7 @@ export async function login(): Promise<string> {
           throw new Error("Rate limit exceeded: Too many login attempts. Please wait a few minutes and try again.");
         }
       }
-      
+
       console.error("Authentication failed:", error);
       throw new Error("Failed to authenticate with INPI API. Please check your internet connection and credentials.");
     }
@@ -165,12 +165,12 @@ function getCachedCompanyData(siren: string): CompanyData | null {
     console.log(`Using cached data for SIREN ${siren}`);
     return cached.data;
   }
-  
+
   // Remove expired cache entry
   if (cached) {
     companyCache.delete(siren);
   }
-  
+
   return null;
 }
 
@@ -180,9 +180,9 @@ function getCachedCompanyData(siren: string): CompanyData | null {
 function cacheCompanyData(siren: string, data: CompanyData): void {
   companyCache.set(siren, {
     data,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
-  
+
   // Cleanup old cache entries (keep only last 50 entries)
   if (companyCache.size > 50) {
     const oldestKey = companyCache.keys().next().value;
@@ -203,13 +203,13 @@ export async function getCompanyInfo(token: string, siren: string): Promise<Comp
   return withRetry(async () => {
     try {
       const apiClient = getApiClient(token);
-      
+
       console.log(`Fetching INPI data for SIREN ${siren}`);
       const inpiResponse = await apiClient.get(`/api/companies/${siren}`);
-      
+
       // Cache the successful response
       cacheCompanyData(siren, inpiResponse.data);
-      
+
       return inpiResponse.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -217,7 +217,9 @@ export async function getCompanyInfo(token: string, siren: string): Promise<Comp
           throw new Error(`Company not found: No company found for SIREN ${siren}. Please verify the SIREN number.`);
         }
         if (error.response?.status === 401) {
-          throw new Error("Authentication expired: Please try again. If the problem persists, check your INPI credentials.");
+          throw new Error(
+            "Authentication expired: Please try again. If the problem persists, check your INPI credentials.",
+          );
         }
         if (error.response?.status === 403) {
           throw new Error("Access denied: Your INPI account may not have permission to access this company's data.");
@@ -226,9 +228,11 @@ export async function getCompanyInfo(token: string, siren: string): Promise<Comp
           throw new Error("Rate limit exceeded: Too many requests. Please wait a moment and try again.");
         }
       }
-      
+
       console.error(`Failed to fetch company data for SIREN ${siren}:`, error);
-      throw new Error("Network error: Failed to fetch company data. Please check your internet connection and try again.");
+      throw new Error(
+        "Network error: Failed to fetch company data. Please check your internet connection and try again.",
+      );
     }
   });
 }
@@ -239,5 +243,5 @@ export async function getCompanyInfo(token: string, siren: string): Promise<Comp
  */
 export function clearCompanyCache(): void {
   companyCache.clear();
-  console.log('Company data cache cleared');
+  console.log("Company data cache cleared");
 }

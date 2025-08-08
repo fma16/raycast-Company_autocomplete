@@ -27,13 +27,13 @@ async function loadGreffeIndexAsync(): Promise<GreffeIndex> {
 
   loadingPromise = (async () => {
     try {
-      const jsonPath = join(environment.assetsPath, 'greffes-index.json');
-      console.log('Loading greffe index from:', jsonPath);
-      const fileContent = await readFile(jsonPath, 'utf-8');
+      const jsonPath = join(environment.assetsPath, "greffes-index.json");
+      console.log("Loading greffe index from:", jsonPath);
+      const fileContent = await readFile(jsonPath, "utf-8");
       greffeIndex = JSON.parse(fileContent);
       return greffeIndex!;
     } catch (error) {
-      console.error('Failed to load greffe index asynchronously:', error);
+      console.error("Failed to load greffe index asynchronously:", error);
       // Reset loading promise on error to allow retry
       loadingPromise = null;
       return {};
@@ -53,20 +53,20 @@ function loadGreffeIndexSync(): GreffeIndex {
   }
 
   try {
-    const jsonPath = join(environment.assetsPath, 'greffes-index.json');
-    const fileContent = readFileSync(jsonPath, 'utf-8');
+    const jsonPath = join(environment.assetsPath, "greffes-index.json");
+    const fileContent = readFileSync(jsonPath, "utf-8");
     const parsed = JSON.parse(fileContent);
-    
+
     // Check if the file has the expected structure
     if (parsed.byCodePostal) {
       greffeIndex = parsed.byCodePostal;
     } else {
       greffeIndex = parsed;
     }
-    
+
     return greffeIndex!;
   } catch (error) {
-    console.error('Failed to load greffe index synchronously:', error);
+    console.error("Failed to load greffe index synchronously:", error);
     return {};
   }
 }
@@ -80,7 +80,7 @@ export function findGreffeByCodePostal(codePostal: string): string | null {
     const index = loadGreffeIndexSync();
     return index[codePostal] || null;
   } catch (error) {
-    console.error('Error looking up greffe for postal code:', codePostal, error);
+    console.error("Error looking up greffe for postal code:", codePostal, error);
     return null;
   }
 }
@@ -94,7 +94,7 @@ export async function findGreffeByCodePostalAsync(codePostal: string): Promise<s
     const index = await loadGreffeIndexAsync();
     return index[codePostal] || null;
   } catch (error) {
-    console.error('Error looking up greffe for postal code asynchronously:', codePostal, error);
+    console.error("Error looking up greffe for postal code asynchronously:", codePostal, error);
     return null;
   }
 }
@@ -106,8 +106,8 @@ export async function findGreffeByCodePostalAsync(codePostal: string): Promise<s
 export async function preloadGreffeIndex(): Promise<void> {
   try {
     await loadGreffeIndexAsync();
-    console.log('Greffe index preloaded successfully');
+    console.log("Greffe index preloaded successfully");
   } catch (error) {
-    console.error('Failed to preload greffe index:', error);
+    console.error("Failed to preload greffe index:", error);
   }
 }

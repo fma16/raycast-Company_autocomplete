@@ -1,7 +1,7 @@
 # Recherche Entreprise (INPI) pour Raycast
 
 > [!IMPORTANT]  
-> Cette extension a été entièrement développée avec l'assistance de **Claude Code** et **Gemini CLI**. Un parfait exemple de collaboration humain-IA pour créer des outils utiles et professionnels.
+> Cette extension a été entièrement développée avec l'assistance de **Claude Code** et **Gemini CLI**, sans réelle compétence en code de la part de l'auteur. A utiliser à ses risques et périls.
 
 Cette extension Raycast vous permet de rechercher rapidement les informations légales et financières d'une entreprise française en utilisant son numéro SIREN ou SIRET. Elle se connecte directement à l'API de l'INPI pour fournir des données à jour et fiables.
 
@@ -37,14 +37,14 @@ npm run dev
 ### Obtenir les identifiants INPI
 
 1. **Créer un compte INPI**
-   - Rendez-vous sur [data.inpi.fr](https://data.inpi.fr/)
+   - Rendez-vous sur [data.inpi.fr](https://data.inpi.fr/content/editorial/Acces_API_Entreprises)
    - Créez un compte si vous n'en avez pas
    - Connectez-vous à votre espace personnel
 
 2. **Demander l'accès à l'API**
    - Dans votre espace personnel, naviguez vers la section API
    - Demandez l'accès à l'API du Registre National des Entreprises
-   - Attendez l'approbation (généralement sous 24-48h)
+   - Attendez l'approbation
 
 3. **Récupérer vos identifiants**
    - Une fois l'accès approuvé, notez votre nom d'utilisateur (email) et mot de passe
