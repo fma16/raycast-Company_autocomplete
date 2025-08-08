@@ -1,5 +1,8 @@
 # Recherche Entreprise (INPI) pour Raycast
 
+> [!IMPORTANT]  
+> Cette extension a été entièrement développée avec l'assistance de **Claude Code** et **Gemini CLI**. Un parfait exemple de collaboration humain-IA pour créer des outils utiles et professionnels.
+
 Cette extension Raycast vous permet de rechercher rapidement les informations légales et financières d'une entreprise française en utilisant son numéro SIREN ou SIRET. Elle se connecte directement à l'API de l'INPI pour fournir des données à jour et fiables.
 
 ## 🚀 Installation
@@ -15,8 +18,8 @@ Cette extension Raycast vous permet de rechercher rapidement les informations l�
 ### Installation pour développement
 1. Clonez ce repository
 ```bash
-git clone https://github.com/[votre-username]/base-rne-inpi.git
-cd base-rne-inpi
+git clone https://github.com/fma16/raycast-Company_autocomplete.git
+cd raycast-Company_autocomplete
 ```
 
 2. Installez les dépendances
