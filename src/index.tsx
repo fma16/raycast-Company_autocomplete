@@ -332,7 +332,8 @@ function buildPersonneMoraleMarkdown(data: CompanyData): string {
   const denomination = formatField(identite?.entreprise?.denomination) || formatField(personneMorale.denomination);
   const shareCapitalRaw =
     formatField(identite?.description?.montantCapital) || formatField(personneMorale.capital?.montant);
-  const shareCapital = shareCapitalRaw !== FALLBACK_VALUES.MISSING_DATA ? formatFrenchNumber(shareCapitalRaw) : shareCapitalRaw;
+  const shareCapital =
+    shareCapitalRaw !== FALLBACK_VALUES.MISSING_DATA ? formatFrenchNumber(shareCapitalRaw) : shareCapitalRaw;
 
   // Extract address and RCS information
   const address = formatAddress(personneMorale.adresseEntreprise);

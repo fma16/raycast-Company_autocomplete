@@ -187,27 +187,27 @@ export function formatSiren(siren: string): string {
  */
 export function formatFrenchNumber(value: string | number): string {
   if (!value) return value as string;
-  
+
   // Convert to string and normalize decimal separators (. or ,)
-  let numString = value.toString().replace(/\s/g, "").replace(",", ".");
-  
+  const numString = value.toString().replace(/\s/g, "").replace(",", ".");
+
   // Check if it's a valid number (integer or decimal)
   if (!/^\d+(\.\d+)?$/.test(numString)) {
     return value as string;
   }
-  
+
   // Parse the number to handle decimals properly
   const num = parseFloat(numString);
-  
+
   // Format to ensure exactly 2 decimal places
   const formatted = num.toFixed(2);
   const parts = formatted.split(".");
   const integerPart = parts[0];
   const decimalPart = parts[1];
-  
+
   // Add non-breaking spaces every 3 digits from right to left for integer part
   const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, "\u00A0");
-  
+
   // Return with French decimal separator (comma) and exactly 2 decimal places
   return `${formattedInteger},${decimalPart}`;
 }
