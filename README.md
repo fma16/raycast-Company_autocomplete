@@ -138,6 +138,20 @@ This extension relies on open and official data sources to ensure the quality of
 - **SIREN**: 9 digits (e.g., `123456789`)
 - **SIRET**: 14 digits (e.g., `12345678901234`) - only the first 9 digits (SIREN) will be used
 
+### 📸 Screenshots
+
+#### Search Interface
+![Search Form](assets/screenshots/screenshot_input-page.png)
+
+#### Company Search Results
+![Search Results](assets/screenshots/screenshot_search.png)
+
+#### Company Details
+![Company Details](assets/screenshots/screenshot_result.png)
+
+#### Login Configuration
+![Login Setup](assets/screenshots/screenshot_login.png)
+
 ### 🔍 Troubleshooting
 
 #### Common Issues
@@ -369,6 +383,20 @@ Cette extension s'appuie sur des sources de données ouvertes et officielles pou
 
 - **SIREN** : 9 chiffres (ex: `123456789`)
 - **SIRET** : 14 chiffres (ex: `12345678901234`) - seuls les 9 premiers chiffres (SIREN) seront utilisés
+
+### 📸 Captures d'écran
+
+#### Interface de recherche
+![Formulaire de recherche](assets/screenshots/screenshot_input-page.png)
+
+#### Résultats de recherche
+![Résultats de recherche](assets/screenshots/screenshot_search.png)
+
+#### Détails de l'entreprise
+![Détails de l'entreprise](assets/screenshots/screenshot_result.png)
+
+#### Configuration de connexion
+![Configuration de connexion](assets/screenshots/screenshot_login.png)
 
 ### 🔍 Dépannage
 
