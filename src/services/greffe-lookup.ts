@@ -1,24 +1,52 @@
 import { environment } from "@raycast/api";
-import greffeIndexData from "../../assets/greffes-index.json";
+import { findGreffeInCompressedData, type CompactGreffeData } from "./greffe-compressor";
+
+// Import compressed data (84% smaller than original)
+import greffeCompressedData from "../../assets/greffes-index-compressed.json";
+
+// Fallback to old format if compressed data not available
+let greffeIndexData: any = null;
+try {
+  greffeIndexData = require("../../assets/greffes-index.json");
+} catch (error) {
+  // Old format not available - compressed-only mode
+}
 
 interface GreffeIndex {
   [codePostal: string]: string;
 }
 
-// Type guard to check if the data has the nested structure
+// Type guards
 function isNestedGreffeData(data: unknown): data is { byCodePostal: GreffeIndex } {
   return typeof data === "object" && data !== null && "byCodePostal" in data;
 }
 
-// The index is now loaded statically at build time.
-// The 'byCodePostal' key check is for compatibility with the old format.
-const greffeIndex: GreffeIndex = isNestedGreffeData(greffeIndexData)
-  ? greffeIndexData.byCodePostal
-  : (greffeIndexData as GreffeIndex);
+function isCompressedGreffeData(data: unknown): data is CompactGreffeData {
+  return typeof data === "object" && data !== null && "ranges" in data && "singles" in data;
+}
+
+// Initialize data source
+const useCompressedFormat = isCompressedGreffeData(greffeCompressedData);
+let legacyGreffeIndex: GreffeIndex | null = null;
+
+if (!useCompressedFormat && greffeIndexData) {
+  // Fallback to legacy format
+  legacyGreffeIndex = isNestedGreffeData(greffeIndexData)
+    ? greffeIndexData.byCodePostal
+    : (greffeIndexData as GreffeIndex);
+}
+
+if (environment.isDevelopment) {
+  const format = useCompressedFormat ? "compressed" : "legacy";
+  const size = useCompressedFormat 
+    ? `${(greffeCompressedData as CompactGreffeData).metadata.compressedSize} entries`
+    : `${legacyGreffeIndex ? Object.keys(legacyGreffeIndex).length : 0} entries`;
+  console.log(`Greffe lookup using ${format} format (${size})`);
+}
 
 /**
  * Finds the appropriate greffe (court registry) based on a postal code.
- * This function is now fully synchronous and performant as the data is in-memory.
+ * Uses compressed range-based format for optimal performance and memory usage.
  *
  * @param codePostal The postal code to look up.
  * @returns The name of the greffe or null if not found.
@@ -27,7 +55,22 @@ export function findGreffeByCodePostal(codePostal: string): string | null {
   if (!codePostal) {
     return null;
   }
-  return greffeIndex[codePostal] || null;
+
+  // Use compressed format (preferred)
+  if (useCompressedFormat) {
+    return findGreffeInCompressedData(codePostal, greffeCompressedData as CompactGreffeData);
+  }
+
+  // Fallback to legacy format
+  if (legacyGreffeIndex) {
+    return legacyGreffeIndex[codePostal] || null;
+  }
+
+  // No data available
+  if (environment.isDevelopment) {
+    console.warn("No greffe data available - both compressed and legacy formats missing");
+  }
+  return null;
 }
 
 // The async and preload functions are no longer necessary as the file is
