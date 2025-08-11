@@ -91,6 +91,28 @@ _[Instructions to come once the extension is published]_
 - **Formatted Summary:** Text ready to copy-paste into your legal documents
 - **Built-in Rate Limiting:** Protection against API abuse with automatic retry
 
+### 📋 Output Templates
+
+The extension generates standardized French legal text using two different templates depending on the entity type:
+
+#### Corporate Entity (Personne Morale)
+```
+La société [DENOMINATION]
+[FORME JURIDIQUE] au capital de [CAPITAL] €
+Immatriculée au RCS de [VILLE] sous le n° [NUMERO_RCS]
+Dont le siège social est situé [ADRESSE]
+Représentée aux fins des présentes par [REPRESENTANT] en sa qualité de [ROLE], dûment [habilité/habilitée].
+```
+
+#### Individual Entrepreneur (Personne Physique)
+```
+[Monsieur/Madame] [PRENOM] [NOM]
+[Né/Née](e) le [DATE] à [LIEU]
+De nationalité [NATIONALITE]
+Demeurant [ADRESSE]
+N° : [SIREN]
+```
+
 ### Data Sources
 
 This extension relies on open and official data sources to ensure the quality of the information:
@@ -300,6 +322,28 @@ _[Instructions à venir une fois l'extension publiée]_
 - **Support des entrepreneurs individuels :** Gère aussi bien les personnes morales que physiques
 - **Résumé formaté :** Texte prêt pour copier-coller dans vos documents juridiques
 - **Limitation de débit intégrée :** Protection contre l'abus de l'API avec retry automatique
+
+### 📋 Modèles de Sortie
+
+L'extension génère du texte juridique français standardisé en utilisant deux modèles différents selon le type d'entité :
+
+#### Personne Morale (Société)
+```
+La société [DENOMINATION]
+[FORME JURIDIQUE] au capital de [CAPITAL] €
+Immatriculée au RCS de [VILLE] sous le n° [NUMERO_RCS]
+Dont le siège social est situé [ADRESSE]
+Représentée aux fins des présentes par [REPRESENTANT] en sa qualité de [ROLE], dûment [habilité/habilitée].
+```
+
+#### Personne Physique (Entrepreneur Individuel)
+```
+[Monsieur/Madame] [PRENOM] [NOM]
+[Né/Née](e) le [DATE] à [LIEU]
+De nationalité [NATIONALITE]
+Demeurant [ADRESSE]
+N° : [SIREN]
+```
 
 ### Sources des Données
 
