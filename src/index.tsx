@@ -7,6 +7,7 @@ import {
   formatAddress,
   formatField,
   formatSiren,
+  formatFrenchNumber,
   getGenderAgreement,
   getLegalFormLabel,
   getRoleName,
@@ -161,7 +162,7 @@ function Metadata({ data }: { data: CompanyData }) {
       <Detail.Metadata.Separator />
       <Detail.Metadata.Label
         title="Capital social"
-        text={shareCapital !== "[[à compléter]]" && shareCapital !== "N/A" ? `${shareCapital} €` : shareCapital}
+        text={shareCapital !== "[[à compléter]]" && shareCapital !== "N/A" ? `${shareCapital}\u00A0€` : shareCapital}
       />
       <Detail.Metadata.Label
         title="RCS"
@@ -329,8 +330,9 @@ function buildPersonneMoraleMarkdown(data: CompanyData): string {
 
   const identite = personneMorale.identite;
   const denomination = formatField(identite?.entreprise?.denomination) || formatField(personneMorale.denomination);
-  const shareCapital =
+  const shareCapitalRaw =
     formatField(identite?.description?.montantCapital) || formatField(personneMorale.capital?.montant);
+  const shareCapital = shareCapitalRaw !== FALLBACK_VALUES.MISSING_DATA ? formatFrenchNumber(shareCapitalRaw) : shareCapitalRaw;
 
   // Extract address and RCS information
   const address = formatAddress(personneMorale.adresseEntreprise);
@@ -340,7 +342,7 @@ function buildPersonneMoraleMarkdown(data: CompanyData): string {
 
   // Build company header and details
   const title = `**La société ${denomination}**`;
-  const details = `${legalForm} au capital de ${shareCapital} €
+  const details = `${legalForm} au capital de ${shareCapital}\u00A0€
 Immatriculée au RCS de ${rcsCity} sous le n° ${sirenFormatted}
 Dont le siège social est situé ${address}`;
 
