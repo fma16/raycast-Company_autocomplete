@@ -1,67 +1,13 @@
 # Company Search (INPI) for Raycast
 
-- [Company Search (INPI) for Raycast](#company-search-inpi-for-raycast)
-  - [English](#english)
-    - [🚀 Installation](#-installation)
-      - [Prerequisites](#prerequisites)
-      - [Installation from Raycast Store](#installation-from-raycast-store)
-      - [Development Installation](#development-installation)
-    - [⚙️ Configuration](#️-configuration)
-      - [Getting INPI Credentials](#getting-inpi-credentials)
-      - [Configure the Extension in Raycast](#configure-the-extension-in-raycast)
-    - [✨ Features](#-features)
-    - [Data Sources](#data-sources)
-    - [🔧 Usage](#-usage)
-      - [Accepted Formats](#accepted-formats)
-    - [🔍 Troubleshooting](#-troubleshooting)
-      - [Common Issues](#common-issues)
-        - ["Authentication failed"](#authentication-failed)
-        - ["Company not found"](#company-not-found)
-        - ["Rate limit exceeded"](#rate-limit-exceeded)
-        - ["Network error"](#network-error)
-      - [Support and Debugging](#support-and-debugging)
-        - [Development Mode](#development-mode)
-        - [Reporting an Issue](#reporting-an-issue)
-    - [🤝 Contributing](#-contributing)
-      - [Contribution Workflow](#contribution-workflow)
-      - [Code Standards](#code-standards)
-    - [📝 Technical Architecture](#-technical-architecture)
-      - [Security](#security)
-      - [Performance](#performance)
-      - [Reliability](#reliability)
-  - [Français](#français)
-    - [🚀 Installation](#-installation-1)
-      - [Prérequis](#prérequis)
-      - [Installation depuis Raycast Store](#installation-depuis-raycast-store)
-      - [Installation pour développement](#installation-pour-développement)
-    - [⚙️ Configuration](#️-configuration-1)
-      - [Obtenir les identifiants INPI](#obtenir-les-identifiants-inpi)
-      - [Configurer l'extension dans Raycast](#configurer-lextension-dans-raycast)
-    - [✨ Fonctionnalités](#-fonctionnalités)
-    - [Sources des Données](#sources-des-données)
-    - [🔧 Utilisation](#-utilisation)
-      - [Formats acceptés](#formats-acceptés)
-    - [🔍 Dépannage](#-dépannage)
-      - [Problèmes courants](#problèmes-courants)
-        - ["Authentication failed"](#authentication-failed-1)
-        - ["Company not found"](#company-not-found-1)
-        - ["Rate limit exceeded"](#rate-limit-exceeded-1)
-        - ["Network error"](#network-error-1)
-      - [Support et débogage](#support-et-débogage)
-        - [Mode développement](#mode-développement)
-        - [Signaler un problème](#signaler-un-problème)
-    - [🤝 Contribution](#-contribution)
-      - [Workflow de contribution](#workflow-de-contribution)
-      - [Standards de code](#standards-de-code)
-    - [📝 Architecture technique](#-architecture-technique)
-      - [Sécurité](#sécurité)
-      - [Performance](#performance-1)
-      - [Fiabilité](#fiabilité)
+- [English](#english)
+- [Français](#français)
 
 
 ## English
 
-> [!IMPORTANT] This extension was developed entirely with the assistance of **Claude Code** and **Gemini CLI**, with no real coding skills from the author. Use at your own risk.
+> [!IMPORTANT]
+> This extension was developed entirely with the assistance of **Claude Code** and **Gemini CLI**, with no real coding skills from the author. Use at your own risk.
 
 This Raycast extension allows you to quickly search for legal and financial information about a French company using its SIREN or SIRET number. It connects directly to the INPI API to provide up-to-date and reliable data.
 
@@ -271,7 +217,6 @@ Contributions are welcome!
 ## Français
 
 > [!IMPORTANT]
-> 
 > Cette extension a été entièrement développée avec l'assistance de **Claude Code** et **Gemini CLI**, sans réelle compétence en code de la part de l'auteur. A utiliser à ses risques et périls.
 
 Cette extension Raycast vous permet de rechercher rapidement les informations légales et financières d'une entreprise française en utilisant son numéro SIREN ou SIRET. Elle se connecte directement à l'API de l'INPI pour fournir des données à jour et fiables.
