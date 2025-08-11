@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1] - 2025-08-08
+## [1.0.1] - {PR_MERGE_DATE}
 
 ### Changed
 - **Security & Code Cleanup**: Performed a major cleanup of the codebase to improve security, performance, and reliability.
@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Code Simplification**: Refactored complex rendering logic, removed recursive API calls, and simplified the overall architecture to make it more robust and maintainable.
 - **Linting & Formatting**: Fixed all code style issues to align with Raycast's CI/CD validation standards.
 
-## [1.0.0] - 2025-01-08
+## [1.0.0] - {PR_MERGE_DATE}
 
 ### Added
 - **Core Feature**: Search French companies by SIREN/SIRET via INPI API

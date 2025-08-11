@@ -1,5 +1,5 @@
-import { Action, ActionPanel, Detail, Form, useNavigation, environment, showToast, Toast } from "@raycast/api";
-import { usePromise } from "@raycast/utils";
+import { Action, ActionPanel, Detail, Form, useNavigation, environment } from "@raycast/api";
+import { usePromise, showFailureToast } from "@raycast/utils";
 import { useState, useEffect } from "react";
 import { getCompanyInfo } from "./services/inpi-api";
 import { CompanyData, RepresentativeInfo } from "./types";
@@ -69,11 +69,7 @@ function CompanyDetail({ siren }: { siren: string }) {
 
   useEffect(() => {
     if (error) {
-      showToast({
-        style: Toast.Style.Failure,
-        title: "Erreur de recherche",
-        message: error.message,
-      });
+      showFailureToast(error, { title: "Erreur de recherche" });
     }
   }, [error]);
 
