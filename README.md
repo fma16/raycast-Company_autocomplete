@@ -240,15 +240,82 @@ Contributions are welcome!
 #### Performance
 
 - **Lazy loading**: On-demand loading of configurations
-- **Caching**: Caching of role and registry mappings
+- **Caching**: Caching of role and registry mappings  
 - **Smart retry**: Automatic retry with exponential backoff
 - **Strict types**: Elimination of runtime errors via TypeScript
+- **Optimized data**: 84% file size reduction for greffe mappings (1.5MB → 251KB)
+- **Fast lookups**: Average 0.004ms lookup time with binary search algorithm
 
 #### Reliability
 
 - **Robust error handling**: Specific and actionable error messages
 - **Graceful fallbacks**: Default values for missing data
 - **Runtime validation**: Verification of API response structure
+
+### 🏛️ Greffe Data Management
+
+The extension uses court registry (greffe) data to determine the correct RCS registration city for companies. This system has been optimized for performance and maintainability.
+
+#### Data Source
+- **Primary Source**: [Datainfogreffe Référentiel Communes-Greffes](https://opendata.datainfogreffe.fr/explore/dataset/referentiel-communes-greffes/)
+- **License**: Open License / Licence Ouverte
+- **Format**: CSV with postal codes mapped to court registries
+- **Update Frequency**: Quarterly recommended (data changes infrequently)
+
+#### Optimization Details
+- **File Size Reduction**: Original 1.5MB → Compressed 251KB (84% reduction)
+- **Data Efficiency**: 28,136 entries → 6,337 compressed entries (77% reduction)
+- **Performance**: Average lookup time 0.004ms with binary search on ranges
+- **Algorithm**: Range-based compression with fallback to individual mappings
+
+#### Data Build Process
+
+```bash
+# Compress existing greffe data (one-time or after updates)
+npm run compress-greffes
+
+# Build new greffe index from CSV source (when available)
+npm run build-greffes
+```
+
+#### File Structure
+```
+assets/
+├── greffes-index.json              # Original full dataset (1.5MB)
+├── greffes-index-compressed.json   # Optimized dataset (251KB)
+└── role-mappings.json              # Legal role mappings
+
+data/
+└── referentiel.csv                 # Source CSV (when updating data)
+
+scripts/
+└── compress-greffes.ts             # Compression utility
+```
+
+#### Updating Greffe Data
+
+1. **Download Latest Data**
+   - Visit [Datainfogreffe Open Data](https://opendata.datainfogreffe.fr/explore/dataset/referentiel-communes-greffes/)
+   - Download CSV export as `data/referentiel.csv`
+
+2. **Rebuild Index**
+   ```bash
+   npm run build-greffes        # Generate from CSV
+   npm run compress-greffes     # Compress for performance
+   npm run test                 # Validate accuracy
+   ```
+
+3. **Validate Changes**
+   - Compression script validates 100% lookup accuracy
+   - Performance tests ensure sub-10ms response times
+   - Build process logs compression statistics
+
+#### Technical Implementation
+The system uses a hybrid approach:
+- **Ranges**: Consecutive postal codes with same greffe (e.g., 75001-75999 → PARIS)
+- **Singles**: Isolated codes that don't benefit from ranges
+- **Binary Search**: O(log n) lookup performance for ranges
+- **Fallback**: Automatic fallback to original format if compressed data unavailable
 
 ## Français
 

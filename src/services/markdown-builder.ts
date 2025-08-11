@@ -148,7 +148,21 @@ export function extractRepresentativeInfo(composition: any): RepresentativeInfo 
 
   const pouvoir = sortedPouvoirs[0];
 
-  // Handle individual representative (person)
+  // Handle individual representative (person) - NEW API FORMAT
+  if (pouvoir.individu?.descriptionPersonne) {
+    const desc = pouvoir.individu.descriptionPersonne;
+    const prenoms = desc.prenoms?.join(" ") || "";
+    const nom = desc.nom || "";
+    const name = `${prenoms} ${nom}`.trim() || FALLBACK_VALUES.REPRESENTATIVE_NAME;
+    const roleCode = pouvoir.roleEntreprise;
+    const role = getRoleName(roleCode || "");
+    // Genre may not be present in new format, default to null
+    const gender = desc.genre === "2" ? "F" : (desc.genre === "1" ? "M" : null);
+
+    return { name, role, gender };
+  }
+
+  // Handle individual representative (person) - OLD API FORMAT (fallback)
   if (pouvoir.personnePhysique?.identite?.descriptionPersonne) {
     const desc = pouvoir.personnePhysique.identite.descriptionPersonne;
     const prenoms = desc.prenoms?.join(" ") || "";
