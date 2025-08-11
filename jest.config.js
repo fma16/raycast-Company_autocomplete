@@ -15,10 +15,8 @@ module.exports = {
     '!src/**/*.test.ts',
     '!src/**/*.spec.ts'
   ],
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1'
-  },
   moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
     '^@raycast/api$': '<rootDir>/src/__mocks__/@raycast/api.ts'
   }
 };

@@ -152,6 +152,14 @@ export function findGreffeInCompressedData(postalCode: string, data: CompactGref
 }
 
 /**
+ * Alias for findGreffeInCompressedData for convenience
+ * Decompresses a single postal code lookup
+ */
+export function decompressGreffeData(compressed: CompactGreffeData, postalCode: string): string | null {
+  return findGreffeInCompressedData(postalCode, compressed);
+}
+
+/**
  * Validates that compressed data maintains same lookup results as original
  */
 export function validateCompression(
