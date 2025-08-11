@@ -64,6 +64,7 @@
     "publish": "npx @raycast/api@latest publish",
     "test": "jest",
     "test:watch": "jest --watch",
+    "build-greffes": "ts-node transform/build-greffes-index.ts",
     "compress-greffes": "ts-node scripts/compress-greffes.ts"
   }
 }

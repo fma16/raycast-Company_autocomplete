@@ -41,7 +41,7 @@ async function validateCsvFile(): Promise<void> {
     throw new Error(
       `❌ CSV source file not found: ${CSV_FILE}\n\n` +
       `To update greffe data:\n` +
-      `1. Download from: https://opendata.datainfogreffe.fr/explore/dataset/referentiel-communes-greffes/\n` +
+      `1. Download from: https://opendata.datainfogreffe.fr/explore/assets/referentiel-communes-greffes/\n` +
       `2. Export as CSV with semicolon separator\n` +
       `3. Save as: ${CSV_FILE}\n`
     );
@@ -78,7 +78,6 @@ async function buildIndexFromCsv(): Promise<{ postalIndex: Record<string, string
         const codePostalRaw = row[CSV_COLUMNS.CODE_POSTAL]?.trim();
         const codeInsee = row[CSV_COLUMNS.CODE_INSEE]?.trim();
         const nomGreffe = row[CSV_COLUMNS.GREFFE]?.trim();
-        const commune = row[CSV_COLUMNS.COMMUNE]?.trim();
 
         // Validate required fields
         if (!nomGreffe) {
@@ -153,7 +152,7 @@ async function saveIndexFile(postalIndex: Record<string, string>, stats: BuildSt
       buildDate: new Date().toISOString(),
       totalEntries: Object.keys(postalIndex).length,
       uniqueGreffes: stats.uniqueGreffes.size,
-      dataSource: 'https://opendata.datainfogreffe.fr/explore/dataset/referentiel-communes-greffes/'
+      dataSource: 'https://opendata.datainfogreffe.fr/explore/assets/referentiel-communes-greffes/'
     }
   };
 
