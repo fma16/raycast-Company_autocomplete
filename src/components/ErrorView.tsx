@@ -9,7 +9,7 @@ export function ErrorView({ siren, hasNoData }: ErrorViewProps) {
   if (hasNoData) {
     return (
       <Detail
-        markdown={`## ❌ Aucune donnée trouvée\n\nL'API INPI n'a pas retourné de données pour le SIREN ${siren}.\n\n### Que faire ?\n\n- ✅ **Vérifiez le numéro SIREN** : Assurez-vous qu'il contient exactement 9 chiffres\n- ✅ **Vérifiez que l'entreprise existe** : Consultez [l'annuaire des entreprises](https://www.societe.com)\n- ✅ **Attendez quelques minutes** : Les données récentes peuvent mettre du temps à apparaître\n- ✅ **Contactez le support INPI** : Si l'entreprise existe mais n'apparaît pas\n\n### Informations techniques\n- SIREN recherché : **${siren}**\n- Source : API INPI\n- Statut : Aucune données personneMorale/personnePhysique`}
+        markdown={`## ❌ No data found\n\nThe INPI API did not return data for SIREN ${siren}.\n\n### What to do?\n\n- ✅ **Check the SIREN number**: Make sure it contains exactly 9 digits\n- ✅ **Check that the company exists**: Consult the [company directory](https://www.societe.com)\n- ✅ **Wait a few minutes**: Recent data may take time to appear\n- ✅ **Contact INPI support**: If the company exists but does not appear\n\n### Technical information\n- SIREN searched: **${siren}**\n- Source: API INPI\n- Status: No personneMorale/personnePhysique data`}
       />
     );
   }

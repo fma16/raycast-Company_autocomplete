@@ -4,8 +4,8 @@ export const environment = {
 };
 
 export const getPreferenceValues = jest.fn(() => {
-  // Pour les tests locaux, priorité aux variables d'environnement avec de vraies valeurs
-  // Éviter les valeurs vides qui donneraient des erreurs d'authentification
+  // For local tests, prioritize environment variables with real values
+  // Avoid empty values that would cause authentication errors
   const username =
     process.env.INPI_USERNAME && process.env.INPI_USERNAME.trim() ? process.env.INPI_USERNAME.trim() : "test-user";
   const password =

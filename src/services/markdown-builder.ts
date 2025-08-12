@@ -132,7 +132,7 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
   if (!Array.isArray(pouvoirs) || pouvoirs.length === 0) return fallback;
 
   // Define role priority (highest to lowest priority)
-  const rolePriority = ["5132", "5131", "5141"]; // Président, Gérant, Directeur général
+  const rolePriority = ["5132", "5131", "5141"]; // President, Manager, General Director
 
   // Sort representatives by role priority
   const sortedPouvoirs = pouvoirs.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {

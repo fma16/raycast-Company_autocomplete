@@ -1,5 +1,5 @@
 /**
- * Tests pour les helpers de credentials
+ * Tests for credentials helpers
  */
 
 import { describe, it, expect } from "@jest/globals";
@@ -24,7 +24,7 @@ describe("Credentials Helper", () => {
     const originalUsername = process.env.INPI_USERNAME;
     const originalPassword = process.env.INPI_PASSWORD;
 
-    // Définir des credentials de test
+    // Define test credentials
     process.env.INPI_USERNAME = "test-user";
     process.env.INPI_PASSWORD = "test-pass";
 
@@ -35,7 +35,7 @@ describe("Credentials Helper", () => {
       expect(credentials.password).toBe("test-pass");
     }
 
-    // Restaurer les variables originales
+    // Restore original variables
     if (originalUsername) {
       process.env.INPI_USERNAME = originalUsername;
     } else {

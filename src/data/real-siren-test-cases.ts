@@ -163,14 +163,14 @@ export function validateEntityStructure(data: Record<string, unknown>, testCase:
 
   if (!formality || !content) return false;
 
-  // Vérification du type d'entité
+  // Entity type verification
   const hasPersonneMorale = !!content.personneMorale;
   const hasPersonnePhysique = !!content.personnePhysique;
 
   if (testCase.type === "personneMorale" && !hasPersonneMorale) return false;
   if (testCase.type === "personnePhysique" && !hasPersonnePhysique) return false;
 
-  // Vérification des champs attendus
+  // Expected fields verification
   return testCase.expectedFields.every((field) => {
     const value = getNestedProperty(data, field);
     return value !== undefined && value !== null;

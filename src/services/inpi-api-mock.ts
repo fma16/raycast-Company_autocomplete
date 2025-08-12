@@ -1,6 +1,6 @@
 /**
- * Service mock pour l'API INPI utilisant des réponses pré-enregistrées
- * Utilisé pour les tests CI/CD sans authentification
+ * Mock service for INPI API using pre-recorded responses
+ * Used for CI/CD tests without authentication
  */
 
 import mockedResponses from "../../assets/mocked-api-responses.json";
@@ -26,7 +26,7 @@ export interface MockedDataset {
 }
 
 /**
- * Service mock qui simule l'API INPI avec des données pré-enregistrées
+ * Mock service that simulates the INPI API with pre-recorded data
  */
 export class INPIApiMock {
   private dataset: MockedDataset;
@@ -38,7 +38,7 @@ export class INPIApiMock {
   }
 
   /**
-   * Simule l'authentification (toujours réussie en mode mock)
+   * Simulates authentication (always successful in mock mode)
    */
   async login(): Promise<string> {
     await this.simulateDelay();
@@ -46,12 +46,12 @@ export class INPIApiMock {
   }
 
   /**
-   * Récupère les données mockées pour un SIREN
+   * Retrieves mocked data for a SIREN
    */
   async getCompanyInfo(siren: string): Promise<CompanyData> {
     await this.simulateDelay();
 
-    // Chercher la réponse mockée pour ce SIREN
+    // Find the mocked response for this SIREN
     const mockedResponse = this.dataset.responses.find((r) => r.siren === siren);
 
     if (!mockedResponse) {
@@ -70,28 +70,28 @@ export class INPIApiMock {
   }
 
   /**
-   * Vérifie si un SIREN est disponible dans le dataset
+   * Checks if a SIREN is available in the dataset
    */
   isAvailable(siren: string): boolean {
     return this.dataset.responses.some((r) => r.siren === siren && !r.error);
   }
 
   /**
-   * Retourne la liste des SIREN disponibles
+   * Returns the list of available SIRENs
    */
   getAvailableSirens(): string[] {
     return this.dataset.responses.filter((r) => !r.error).map((r) => r.siren);
   }
 
   /**
-   * Retourne les métadonnées du dataset
+   * Returns the dataset metadata
    */
   getDatasetInfo(): MockedDataset["metadata"] {
     return this.dataset.metadata;
   }
 
   /**
-   * Simule un délai de réseau
+   * Simulates network delay
    */
   private async simulateDelay(): Promise<void> {
     if (this.responseDelay > 0) {
@@ -100,7 +100,7 @@ export class INPIApiMock {
   }
 
   /**
-   * Réinitialise le délai de réponse
+   * Resets the response delay
    */
   setResponseDelay(delay: number): void {
     this.responseDelay = delay;
@@ -108,18 +108,18 @@ export class INPIApiMock {
 }
 
 /**
- * Instance singleton du service mock
+ * Singleton instance of the mock service
  */
 export const inpiApiMock = new INPIApiMock();
 
 /**
- * Fonction utilitaire pour déterminer si on utilise le mock ou l'API réelle
+ * Utility function to determine whether to use mock or real API
  */
 export function shouldUseMock(): boolean {
-  // Utilise le mock si :
-  // 1. On est dans l'environnement de test
-  // 2. Les identifiants ne sont pas disponibles
-  // 3. La variable d'environnement FORCE_MOCK est définie
+  // Use mock if:
+  // 1. We are in test environment
+  // 2. Credentials are not available
+  // 3. FORCE_MOCK environment variable is set
 
   const isTestEnvironment = process.env.NODE_ENV === "test" || process.env.JEST_WORKER_ID !== undefined;
   const hasCredentials = process.env.INPI_USERNAME && process.env.INPI_PASSWORD;
@@ -129,14 +129,14 @@ export function shouldUseMock(): boolean {
 }
 
 /**
- * Fonction factory qui retourne le bon service selon le contexte
+ * Factory function that returns the appropriate service based on context
  */
 export async function createINPIApiService(): Promise<{ getCompanyInfo: (siren: string) => Promise<CompanyData> }> {
   if (shouldUseMock()) {
     console.log("🎭 Using mocked INPI API service");
     return inpiApiMock;
   } else {
-    // Import dynamique pour éviter les dépendances en mode mock
+    // Dynamic import to avoid dependencies in mock mode
     const { getCompanyInfo } = await import("./inpi-api");
     console.log("🌐 Using real INPI API service");
     return { getCompanyInfo };

@@ -1,6 +1,6 @@
 /**
- * Helper pour accéder aux identifiants INPI dans les tests locaux
- * Essaie d'abord les variables d'environnement, puis les préférences Raycast
+ * Helper to access INPI credentials in local tests
+ * First tries environment variables, then Raycast preferences
  */
 
 import { execSync } from "child_process";
@@ -15,10 +15,10 @@ export interface TestCredentials {
 }
 
 /**
- * Récupère les identifiants INPI pour les tests locaux
+ * Retrieves INPI credentials for local tests
  */
 export function getTestCredentials(): TestCredentials {
-  // 1. Priorité aux variables d'environnement
+  // 1. Priority to environment variables
   if (
     process.env.INPI_USERNAME &&
     process.env.INPI_PASSWORD &&
@@ -32,7 +32,7 @@ export function getTestCredentials(): TestCredentials {
     };
   }
 
-  // 2. Essayer de lire les préférences Raycast depuis le système de fichiers
+  // 2. Try to read Raycast preferences from the file system
   try {
     const raycastCredentials = getRaycastStoredCredentials();
     if (raycastCredentials.username && raycastCredentials.password) {
@@ -46,7 +46,7 @@ export function getTestCredentials(): TestCredentials {
     console.warn("Could not access Raycast stored credentials:", error);
   }
 
-  // 3. Aucun identifiant trouvé
+  // 3. No credentials found
   return {
     username: "",
     password: "",
@@ -55,21 +55,21 @@ export function getTestCredentials(): TestCredentials {
 }
 
 /**
- * Essaie de lire les préférences Raycast stockées sur le système
- * Note: Cette approche est expérimentale et peut ne pas fonctionner sur tous les systèmes
+ * Tries to read Raycast preferences stored on the system
+ * Note: This approach is experimental and may not work on all systems
  */
 function getRaycastStoredCredentials(): { username?: string; password?: string } {
   try {
-    // Raycast stocke ses préférences dans ~/Library/Preferences/com.raycast.macos.plist
-    // On utilise la commande `defaults` de macOS pour les lire
+    // Raycast stores its preferences in ~/Library/Preferences/com.raycast.macos.plist
+    // We use macOS `defaults` command to read them
     const plistPath = path.join(os.homedir(), "Library", "Preferences", "com.raycast.macos.plist");
 
     if (!fs.existsSync(plistPath)) {
       return {};
     }
 
-    // Essayer de lire les préférences avec la commande defaults
-    // Format probable: com.raycast.extension.{extension-name}.{preference-key}
+    // Try to read preferences with defaults command
+    // Probable format: com.raycast.extension.{extension-name}.{preference-key}
     const extensionPrefix = "com.raycast.extension.french-company-search-inpi";
 
     try {
@@ -84,7 +84,7 @@ function getRaycastStoredCredentials(): { username?: string; password?: string }
         return { username, password };
       }
     } catch {
-      // Les clés n'existent peut-être pas encore
+      // Keys might not exist yet
     }
 
     return {};
@@ -94,7 +94,7 @@ function getRaycastStoredCredentials(): { username?: string; password?: string }
 }
 
 /**
- * Affiche des informations de debug sur les credentials trouvés
+ * Displays debug information about found credentials
  */
 export function debugCredentials(): void {
   const creds = getTestCredentials();

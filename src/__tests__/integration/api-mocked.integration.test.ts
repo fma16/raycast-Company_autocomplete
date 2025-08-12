@@ -1,6 +1,6 @@
 /**
- * Tests d'intégration utilisant des données mockées (pour CI/CD)
- * Ces tests s'exécutent sur GitHub Actions sans nécessiter d'authentification
+ * Integration tests using mocked data (for CI/CD)
+ * These tests run on GitHub Actions without requiring authentication
  */
 
 import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
@@ -11,7 +11,7 @@ import { REAL_SIREN_TEST_CASES } from "../../data/real-siren-test-cases";
 
 describe("Mocked API Integration Tests (CI/CD)", () => {
   beforeAll(() => {
-    // Forcer l'utilisation du mock pour ces tests
+    // Force use of mock for these tests
     process.env.FORCE_MOCK = "true";
   });
 
@@ -37,13 +37,13 @@ describe("Mocked API Integration Tests (CI/CD)", () => {
       const availableSirens = inpiApiMock.getAvailableSirens();
       const datasetInfo = inpiApiMock.getDatasetInfo();
 
-      // Vérifier qu'on a au moins quelques SIREN disponibles
+      // Check that we have at least a few SIREN available
       expect(availableSirens.length).toBeGreaterThan(0);
       expect(datasetInfo.successfulResponses).toBeGreaterThan(0);
 
-      // Si c'est le dataset temporaire (3 entreprises), accepter ça
-      // Sinon, attendre au moins 80% des SIREN de test
-      const minExpected = datasetInfo.totalCompanies >= 10 ? Math.floor(REAL_SIREN_TEST_CASES.length * 0.8) : 2; // Minimum pour dataset temporaire
+      // If it's the temporary dataset (3 companies), accept that
+      // Otherwise, expect at least 80% of test SIRENs
+      const minExpected = datasetInfo.totalCompanies >= 10 ? Math.floor(REAL_SIREN_TEST_CASES.length * 0.8) : 2; // Minimum for temporary dataset
 
       const availableTestSirens = REAL_SIREN_TEST_CASES.filter((tc) => availableSirens.includes(tc.siren));
 
@@ -64,12 +64,12 @@ describe("Mocked API Integration Tests (CI/CD)", () => {
     it.each(testCases)("should validate mocked data structure for $description (SIREN: $siren)", async (testCase) => {
       const data = await inpiApiMock.getCompanyInfo(testCase.siren);
 
-      // Validation basique de la structure
+      // Basic structure validation
       expect(data).toBeDefined();
       expect(data.formality).toBeDefined();
       expect(data.formality.siren).toBe(testCase.siren);
 
-      // Validation avec le service de validation API
+      // Validation with API validation service
       const validation = validateCompanyDataStructure(data);
       expect(validation.valid).toBe(true);
 
@@ -87,19 +87,19 @@ describe("Mocked API Integration Tests (CI/CD)", () => {
       const data = await inpiApiMock.getCompanyInfo(testCase.siren);
       const markdown = buildMarkdown(data);
 
-      // Le markdown ne doit pas être vide
+      // Markdown should not be empty
       expect(markdown).toBeDefined();
       expect(markdown.length).toBeGreaterThan(0);
 
-      // Le markdown ne doit pas contenir de fallbacks pour les données essentielles
+      // Markdown should not contain fallbacks for essential data
       expect(markdown).not.toContain("No information to display");
 
-      // Validation spécifique selon le type d'entité
+      // Specific validation according to entity type
       if (testCase.type === "personneMorale") {
         expect(markdown).toContain("**La société");
         expect(markdown).toContain("Représentée aux fins des présentes");
 
-        // Le SIREN doit être correctement formaté (avec espaces non-breakables)
+        // SIREN should be correctly formatted (with non-breaking spaces)
         const formattedSiren = `${testCase.siren.substring(0, 3)}\u00A0${testCase.siren.substring(3, 6)}\u00A0${testCase.siren.substring(6, 9)}`;
         expect(markdown).toContain(formattedSiren);
       } else if (testCase.type === "personnePhysique") {
@@ -107,9 +107,9 @@ describe("Mocked API Integration Tests (CI/CD)", () => {
         expect(markdown).toContain("N° : ");
       }
 
-      // Validation des fonctions de formatage v1.1
+      // Validation of v1.1 formatting functions
       if (testCase.type === "personneMorale") {
-        // Noms de représentants format "Prénom NOM"
+        // Representative names format "FirstName LASTNAME"
         const representativeMatches = markdown.match(
           /Représentée aux fins des présentes par ([A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ][a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ-]+ [A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ-]+)/,
         );
@@ -120,7 +120,7 @@ describe("Mocked API Integration Tests (CI/CD)", () => {
           );
         }
 
-        // Villes RCS en Title Case (Paris, Lyon, etc.)
+        // RCS cities in Title Case (Paris, Lyon, etc.)
         const rcsMatches = markdown.match(
           /Immatriculée au RCS de ([A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ][a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ-]+)/,
         );
@@ -130,16 +130,16 @@ describe("Mocked API Integration Tests (CI/CD)", () => {
           expect(rcsCity).not.toMatch(/^[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ-]+$/);
         }
 
-        // Adresses avec types de voies étendus (BD → Boulevard)
+        // Addresses with extended street types (BD → Boulevard)
         const addressMatches = markdown.match(/situé (.+),/);
         if (addressMatches) {
           const address = addressMatches[1];
-          // Vérifier que les abréviations sont étendues
+          // Check that abbreviations are expanded
           expect(address).not.toContain(" BD ");
           expect(address).not.toContain(" AV ");
           expect(address).not.toContain(" PL ");
 
-          // Vérifier que les formes complètes sont présentes (si applicable)
+          // Check that full forms are present (if applicable)
           if (address.includes("boulevard") || address.includes("avenue") || address.includes("place")) {
             expect(address).toMatch(/(boulevard|avenue|place|rue|chemin)/i);
           }
@@ -162,7 +162,7 @@ describe("Mocked API Integration Tests (CI/CD)", () => {
       await inpiApiMock.getCompanyInfo(testSiren);
 
       const elapsed = Date.now() - startTime;
-      expect(elapsed).toBeLessThan(500); // Devrait être très rapide avec des mocks
+      expect(elapsed).toBeLessThan(500); // Should be very fast with mocks
     });
 
     it("should handle multiple concurrent requests", async () => {
@@ -200,7 +200,7 @@ describe("Mocked API Integration Tests (CI/CD)", () => {
     });
 
     it("should handle mocked errors properly", async () => {
-      // Tester les erreurs en essayant des SIREN invalides
+      // Test errors by trying invalid SIRENs
       const invalidSiren = "000000000";
 
       await expect(inpiApiMock.getCompanyInfo(invalidSiren)).rejects.toThrow(

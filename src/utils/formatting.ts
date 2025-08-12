@@ -71,7 +71,7 @@ export function formatFrenchNumber(input: string | number): string {
 }
 
 /**
- * Convertit une chaîne en Title Case (Première lettre majuscule)
+ * Converts a string to Title Case (first letter capitalized)
  */
 export function toTitleCase(str: string): string {
   if (!str) return "";
@@ -91,26 +91,26 @@ export function toTitleCase(str: string): string {
 }
 
 /**
- * Formate un nom de représentant selon les conventions françaises : Prénom NOM
+ * Formats a representative's name according to French conventions: FirstName LASTNAME
  */
 export function formatRepresentativeName(prenoms: string[], nom: string): string {
   if (!prenoms?.length && !nom) return FALLBACK_VALUE;
 
-  // Formatage prénom(s) : Première lettre majuscule, reste minuscule
+  // Format first name(s): First letter capitalized, rest lowercase
   const formattedPrenoms =
     prenoms
       ?.map((prenom) => (prenom ? toTitleCase(prenom.trim()) : ""))
       .filter(Boolean)
       .join(" ") || "";
 
-  // Formatage nom : Tout en majuscules
+  // Format last name: All uppercase
   const formattedNom = nom ? nom.trim().toUpperCase() : "";
 
   return `${formattedPrenoms} ${formattedNom}`.trim() || FALLBACK_VALUE;
 }
 
 /**
- * Formate une ville selon les conventions françaises
+ * Formats a city name according to French conventions
  */
 export function formatCityName(cityName: string): string {
   if (!cityName) return FALLBACK_VALUE;
@@ -127,7 +127,7 @@ export function formatCityName(cityName: string): string {
       // If it's a separator, return as-is
       if (/^[\s-]+$/.test(part)) return part;
 
-      // Exceptions pour particules françaises
+      // Exceptions for French particles
       const exceptions = ["de", "du", "des", "le", "la", "les", "sur", "sous", "en"];
       return exceptions.includes(part) ? part : toTitleCase(part);
     })

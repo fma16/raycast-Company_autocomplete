@@ -1,8 +1,8 @@
-# Architecture Technique
+# Technical Architecture
 
-## 🏗️ Vue d'Ensemble
+## 🏗️ Overview
 
-L'extension French Company Search suit une architecture modulaire optimisée pour les performances, la fiabilité et la maintenabilité.
+The French Company Search extension follows a modular architecture optimized for performance, reliability, and maintainability.
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -26,198 +26,198 @@ L'extension French Company Search suit une architecture modulaire optimisée pou
                     └─────────────────┘
 ```
 
-## 📦 Structure du Projet
+## 📦 Project Structure
 
 ```
 src/
-├── components/           # Composants UI React
+├── components/           # React UI Components
 │   ├── CompanyDetailsView.tsx
 │   ├── CompanyMetadata.tsx
 │   └── ErrorView.tsx
 ├── hooks/               # Custom React Hooks
 │   └── useCompanyData.ts
-├── services/           # Services métier
-│   ├── inpi-api.ts     # Client API INPI
-│   ├── greffe-lookup.ts # Recherche greffe optimisée
-│   ├── markdown-builder.ts # Génération texte légal
-│   ├── metrics.ts      # Collecte métriques
-│   └── api-validation.ts # Validation API
-├── utils/              # Utilitaires
-│   └── formatting.ts   # Formatage données françaises
-├── types/              # Définitions TypeScript
+├── services/           # Business Services
+│   ├── inpi-api.ts     # INPI API Client
+│   ├── greffe-lookup.ts # Optimized court registry lookup
+│   ├── markdown-builder.ts # Legal text generation
+│   ├── metrics.ts      # Metrics collection
+│   └── api-validation.ts # API validation
+├── utils/              # Utilities
+│   └── formatting.ts   # French data formatting
+├── types/              # TypeScript definitions
 │   └── index.ts
 └── __tests__/          # Tests
-    ├── integration/    # Tests d'intégration
-    ├── performance/    # Tests de performance
-    └── services/       # Tests unitaires
+    ├── integration/    # Integration tests
+    ├── performance/    # Performance tests
+    └── services/       # Unit tests
 
 assets/
-├── greffes-index.json          # Données greffe originales
-├── greffes-index-compressed.json # Données optimisées
-└── role-mappings.json          # Mappings rôles juridiques
+├── greffes-index.json          # Original court registry data
+├── greffes-index-compressed.json # Optimized data
+└── role-mappings.json          # Legal role mappings
 
 scripts/
-└── compress-greffes.ts         # Compression données
+└── compress-greffes.ts         # Data compression
 
 transform/
-└── build-greffes-index.ts      # Construction index greffe
+└── build-greffes-index.ts      # Court registry index build
 
 docs/
 ├── ARCHITECTURE.md
 └── TROUBLESHOOTING.md
 ```
 
-## 🔧 Composants Clés
+## 🔧 Key Components
 
-### 1. Couche UI (React Components)
+### 1. UI Layer (React Components)
 
 #### `SearchForm`
-- **Responsabilité:** Interface de recherche avec validation SIREN/SIRET
-- **Validation:** Format 9/14 chiffres en temps réel
-- **État:** Gestion loading et erreurs
+- **Responsibility:** Search interface with SIREN/SIRET validation
+- **Validation:** Real-time 9/14 digit format checking
+- **State:** Loading and error state management
 
 #### `CompanyDetail`
-- **Responsabilité:** Orchestration affichage résultats
-- **Hooks:** `useCompanyData` pour gestion état
-- **Actions:** Copy vers presse-papier (HTML/Plain text)
+- **Responsibility:** Results display orchestration
+- **Hooks:** `useCompanyData` for state management
+- **Actions:** Copy to clipboard (HTML/Plain text)
 
 #### `CompanyDetailsView` / `CompanyMetadata`
-- **Responsabilité:** Rendu données formatées
-- **Séparation:** Contenu vs métadonnées
-- **Formatage:** Utilisation des utilitaires de formatage
+- **Responsibility:** Formatted data rendering
+- **Separation:** Content vs metadata display
+- **Formatting:** Uses formatting utilities
 
-### 2. Couche Services
+### 2. Services Layer
 
-#### `inpi-api.ts` - Client API INPI
+#### `inpi-api.ts` - INPI API Client
 ```typescript
 interface ApiClient {
-  login(): Promise<string>              // Authentification avec cache
-  getCompanyInfo(siren: string): Promise<CompanyData>  // Données société
-  clearCache(): void                    // Nettoyage cache
+  login(): Promise<string>              // Authentication with cache
+  getCompanyInfo(siren: string): Promise<CompanyData>  // Company data
+  clearCache(): void                    // Cache cleanup
 }
 
 Features:
-• Cache authentification (10 min TTL)
-• Cache données société (5 min TTL)  
-• Rate limiting automatique (30 req/min)
-• Retry avec backoff exponentiel
-• Métriques automatiques
+• Authentication cache (10 min TTL)
+• Company data cache (5 min TTL)  
+• Automatic rate limiting (30 req/min)
+• Retry with exponential backoff
+• Automatic metrics
 ```
 
-#### `greffe-lookup.ts` - Recherche Greffe Optimisée
+#### `greffe-lookup.ts` - Optimized Court Registry Lookup
 ```typescript
 interface GreffeService {
-  findGreffeByCodePostal(code: string): string | null  // Recherche O(1) ou O(log n)
-  getCompressionStats(): CompressionStats             // Statistiques compression
+  findGreffeByCodePostal(code: string): string | null  // O(1) or O(log n) lookup
+  getCompressionStats(): CompressionStats             // Compression statistics
 }
 
 Performance:
-• Lookup moyen: <0.01ms
-• Données compressées: 251KB (84% réduction)
-• Fallback automatique format original
-• Cache binaire pour ranges
+• Average lookup: <0.01ms
+• Compressed data: 251KB (84% reduction)
+• Automatic fallback to original format
+• Binary cache for ranges
 ```
 
-#### `metrics.ts` - Collecte Métriques
+#### `metrics.ts` - Metrics Collection
 ```typescript
 interface MetricsSystem {
-  recordApiCall(metric: ApiMetrics): void              // Enregistrement automatique
-  getStats(timeRange?: number): PerformanceStats      // Statistiques période
-  getHealthStatus(): HealthStatus                     // État santé système
+  recordApiCall(metric: ApiMetrics): void              // Automatic recording
+  getStats(timeRange?: number): PerformanceStats      // Period statistics
+  getHealthStatus(): HealthStatus                     // System health
 }
 
-Métriques collectées:
-• Temps de réponse (avg, P95, P99)
-• Taux de succès par endpoint
-• Erreurs par type
-• Utilisation cache
+Collected metrics:
+• Response times (avg, P95, P99)
+• Success rates per endpoint
+• Errors by type
+• Cache usage
 ```
 
-#### `api-validation.ts` - Validation Structure API
+#### `api-validation.ts` - API Structure Validation
 ```typescript
 interface ValidationSystem {
-  validateCompanyDataStructure(data: any): ValidationResult    // Validation structure
-  detectApiChanges(current: any, baseline: any): ChangeDetection  // Détection changements
-  createApiBaseline(response: CompanyData): Baseline           // Création baseline
+  validateCompanyDataStructure(data: any): ValidationResult    // Structure validation
+  detectApiChanges(current: any, baseline: any): ChangeDetection  // Change detection
+  createApiBaseline(response: CompanyData): Baseline           // Baseline creation
 }
 
 Validation:
-• Structure PersonneMorale/PersonnePhysique
-• Compatibilité formats API ancien/nouveau
-• Détection changements avec niveau de risque
+• PersonneMorale/PersonnePhysique structure
+• Old/new API format compatibility
+• Change detection with risk level
 ```
 
-### 3. Couche Data
+### 3. Data Layer
 
-#### Système de Cache Multi-Niveau
+#### Multi-Level Cache System
 ```typescript
-// Cache L1: Authentification (en mémoire)
+// Cache L1: Authentication (in-memory)
 authToken: { token: string; expiresAt: number }
 
-// Cache L2: Données société (en mémoire, 5 min)
+// Cache L2: Company data (in-memory, 5 min)
 companyCache: Map<string, { data: CompanyData; timestamp: number }>
 
-// Cache L3: Données greffe (sur disque, compressées)
+// Cache L3: Court registry data (on-disk, compressed)
 greffeData: CompactGreffeData
 ```
 
-#### Optimisation Données Greffe
+#### Court Registry Data Optimization
 ```typescript
-// Format original: 28,136 entrées = 1.57MB
+// Original format: 28,136 entries = 1.57MB
 Record<string, string>  // "75001" → "PARIS"
 
-// Format compressé: 6,337 entrées = 251KB  
+// Compressed format: 6,337 entries = 251KB  
 interface CompactGreffeData {
-  ranges: GreffeRange[]     // Plages consécutives
-  singles: Record<string, string>  // Codes isolés
+  ranges: GreffeRange[]     // Consecutive ranges
+  singles: Record<string, string>  // Isolated codes
   metadata: CompressionMetadata
 }
 
-// Algorithme de recherche hybride:
-// 1. Lookup direct dans singles O(1)
-// 2. Recherche binaire dans ranges O(log n)
-// 3. Performance: <10ms garanti, <0.01ms typique
+// Hybrid search algorithm:
+// 1. Direct lookup in singles O(1)
+// 2. Binary search in ranges O(log n)
+// 3. Performance: <10ms guaranteed, <0.01ms typical
 ```
 
-## ⚡ Optimisations Performance
+## ⚡ Performance Optimizations
 
-### 1. Données Greffe - Compression 84%
+### 1. Court Registry Data - 84% Compression
 
-**Problème Original:**
-- 28,136 mappings code postal → greffe
-- Fichier 1.57MB chargé à chaque démarrage
-- Lookup O(1) mais empreinte mémoire élevée
+**Original Problem:**
+- 28,136 postal code → court registry mappings
+- 1.57MB file loaded at each startup
+- O(1) lookup but high memory footprint
 
-**Solution Implémentée:**
+**Implemented Solution:**
 ```typescript
-// Détection des plages consécutives
-// 75001, 75002, 75003 → "PARIS" devient:
+// Detection of consecutive ranges
+// 75001, 75002, 75003 → "PARIS" becomes:
 { start: "75001", end: "75003", greffe: "PARIS" }
 
-// Codes isolés restent en mapping direct
-{ "20000": "AJACCIO" }  // Code Corse isolé
+// Isolated codes remain in direct mapping
+{ "20000": "AJACCIO" }  // Isolated Corsica code
 
-// Résultat: 77% réduction entrées, 84% réduction taille
+// Result: 77% entry reduction, 84% size reduction
 ```
 
-### 2. Cache Stratégique Multi-Couche
+### 2. Strategic Multi-Layer Caching
 
 **L1 - Token Cache (10 min):**
-- Évite re-authentification excessive
-- Gestion expiration automatique
-- Invalidation sur erreur 401
+- Avoids excessive re-authentication
+- Automatic expiration management
+- Invalidation on 401 errors
 
 **L2 - Company Cache (5 min):**
-- Évite appels API répétés même SIREN
-- TTL adapté à fréquence changements données
-- Invalidation manuelle possible
+- Avoids repeated API calls for same SIREN
+- TTL adapted to data change frequency
+- Manual invalidation possible
 
-**L3 - Greffe Cache (permanent):**
-- Données statiques, changent rarement
-- Compressed format pour économie mémoire
-- Fallback sur format original
+**L3 - Court Registry Cache (permanent):**
+- Static data, changes rarely
+- Compressed format for memory economy
+- Fallback to original format
 
-### 3. Rate Limiting Intelligent
+### 3. Intelligent Rate Limiting
 
 ```typescript
 class RateLimiter {
@@ -226,7 +226,7 @@ class RateLimiter {
   
   checkLimit(): void {
     const now = Date.now()
-    // Sliding window: supprime calls > 1 min
+    // Sliding window: remove calls > 1 min
     this.calls = this.calls.filter(time => time > now - 60000)
     
     if (this.calls.length >= this.maxPerMinute) {
@@ -238,12 +238,12 @@ class RateLimiter {
 }
 ```
 
-## 🎯 Patterns Architecturaux
+## 🎯 Architectural Patterns
 
 ### 1. Error Handling Pattern
 
 ```typescript
-// Propagation structurée des erreurs
+// Structured error propagation
 try {
   const data = await getCompanyInfo(siren)
   return formatCompanyData(data)
@@ -251,7 +251,7 @@ try {
   if (error.status === 404) {
     return { error: "Company not found", fallback: "Check SIREN format" }
   }
-  // Log + metrics automatiques
+  // Automatic log + metrics
   metrics.recordError(error)
   throw new UserFriendlyError("Service temporarily unavailable")
 }
@@ -267,17 +267,17 @@ async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
     } catch (error) {
       if (i === maxRetries - 1) throw error
       
-      const delay = Math.min(1000 * Math.pow(2, i), 5000)  // Cap à 5s
+      const delay = Math.min(1000 * Math.pow(2, i), 5000)  // Cap at 5s
       await new Promise(resolve => setTimeout(resolve, delay))
     }
   }
 }
 ```
 
-### 3. Observer Pattern pour Métriques
+### 3. Observer Pattern for Metrics
 
 ```typescript
-// Collecte automatique sans couplage
+// Automatic collection without coupling
 class ApiCall {
   async execute() {
     const startTime = Date.now()
@@ -301,9 +301,9 @@ class ApiCall {
 }
 ```
 
-## 🔄 Flux de Données
+## 🔄 Data Flow
 
-### 1. Recherche Société (Flux Principal)
+### 1. Company Search (Main Flow)
 
 ```mermaid
 sequenceDiagram
@@ -314,13 +314,13 @@ sequenceDiagram
     participant M as Metrics
     participant V as Validation
     
-    U->>C: Saisit SIREN
+    U->>C: Enter SIREN
     C->>H: useCompanyData(siren)
     H->>A: getCompanyInfo(siren)
     
     Note over A: Check cache L2
     alt Cache Miss
-        A->>A: login() si nécessaire
+        A->>A: login() if needed
         A->>API_INPI: GET /api/companies/{siren}
         API_INPI-->>A: CompanyData
         A->>V: validateCompanyDataStructure()
@@ -330,10 +330,10 @@ sequenceDiagram
     A->>M: recordApiCall()
     A-->>H: CompanyData
     H-->>C: {data, loading, error}
-    C-->>U: Résultat formaté
+    C-->>U: Formatted result
 ```
 
-### 2. Lookup Greffe (Optimisé)
+### 2. Court Registry Lookup (Optimized)
 
 ```mermaid
 sequenceDiagram
@@ -343,7 +343,7 @@ sequenceDiagram
     
     M->>G: findGreffeByCodePostal("75001")
     
-    Note over G: Stratégie Lookup
+    Note over G: Lookup Strategy
     G->>C: Check singles["75001"]
     alt Found in Singles
         C-->>G: "PARIS"
@@ -357,43 +357,43 @@ sequenceDiagram
     Note over G: Typical: <0.01ms
 ```
 
-## 📊 Monitoring et Observabilité
+## 📊 Monitoring and Observability
 
-### 1. Métriques Automatiques
+### 1. Automatic Metrics
 
 ```typescript
-// Collectées automatiquement sur chaque appel API
+// Collected automatically on each API call
 interface ApiMetrics {
   endpoint: string         // "/api/companies/123456789"
   method: string          // "GET"
-  responseTime: number    // Temps en ms
+  responseTime: number    // Time in ms
   statusCode: number      // 200, 404, 500, etc.
   success: boolean        // true/false
   errorType?: string      // "AxiosError", "NetworkError"
-  retryCount?: number     // Nombre de tentatives
-  timestamp: number       // Date d'enregistrement
+  retryCount?: number     // Number of attempts
+  timestamp: number       // Recording timestamp
 }
 ```
 
 ### 2. Health Checks
 
 ```typescript
-// Vérification santé automatique
+// Automatic health verification
 const healthCriteria = {
   minSuccessRate: 95,        // 95% minimum
   maxAvgResponseTime: 3000,  // 3s maximum
   maxP95ResponseTime: 5000   // 5s P95 maximum
 }
 
-// Évaluation continue
+// Continuous evaluation
 PerformanceMonitor.isHealthy() // boolean
-PerformanceMonitor.getHealthStatus() // détails + recommandations
+PerformanceMonitor.getHealthStatus() // details + recommendations
 ```
 
-### 3. Alerting et Diagnostics
+### 3. Alerting and Diagnostics
 
 ```typescript
-// Logs automatiques en développement
+// Automatic logs in development
 if (responseTime > 5000) {
   console.warn(`[PERF] Slow API call: ${endpoint} took ${responseTime}ms`)
 }
@@ -403,30 +403,30 @@ if (successRate < 80) {
 }
 ```
 
-## 🛡️ Sécurité et Résilience
+## 🛡️ Security and Resilience
 
-### 1. Gestion Credentials
+### 1. Credentials Management
 
 ```typescript
-// Stockage sécurisé via Raycast
+// Secure storage via Raycast
 const preferences = getPreferenceValues<Preferences>()
 
-// Validation côté client
+// Client-side validation
 function validateCredentials(username: string, password: string) {
   if (!username?.includes('@')) {
     throw new Error("Username should be an email")
   }
-  // Pas de validation password complexe pour éviter faux positifs
+  // No complex password validation to avoid false positives
 }
 ```
 
-### 2. Protection Rate Limiting
+### 2. Rate Limiting Protection
 
 ```typescript
-// Prévention abus API
+// API abuse prevention
 const rateLimiter = new RateLimiter(30, 60000) // 30 req/min
 
-// Gestion erreurs 429
+// 429 error handling
 if (error.status === 429) {
   const retryAfter = error.headers['retry-after'] || 60
   await sleep(retryAfter * 1000)
@@ -434,35 +434,35 @@ if (error.status === 429) {
 }
 ```
 
-### 3. Validation Données
+### 3. Data Validation
 
 ```typescript
-// Validation stricte structure API
+// Strict API structure validation
 const validation = validateCompanyDataStructure(response)
 if (!validation.valid) {
-  // Log erreurs pour debugging
+  // Log errors for debugging
   console.error('API structure changed:', validation.errors)
   
-  // Fallback gracieux avec données partielles
+  // Graceful fallback with partial data
   return buildMarkdownWithFallbacks(response)
 }
 ```
 
-## 🔮 Évolution et Extensibilité
+## 🔮 Evolution and Extensibility
 
 ### 1. Plugin Architecture
 
-L'architecture permet l'ajout facile de nouveaux services:
+The architecture allows easy addition of new services:
 
 ```typescript
-// Interface commune pour services de données légales
+// Common interface for legal data services
 interface LegalDataService {
   validateInput(input: string): boolean
   fetchData(identifier: string): Promise<CompanyData>
   formatOutput(data: CompanyData): string
 }
 
-// Implémentations spécifiques
+// Specific implementations
 class InpiService implements LegalDataService { /* ... */ }
 class GrenobleService implements LegalDataService { /* ... */ }
 ```
@@ -470,7 +470,7 @@ class GrenobleService implements LegalDataService { /* ... */ }
 ### 2. Monitoring Extensions
 
 ```typescript
-// Métriques custom facilement ajoutables
+// Custom metrics easily addable
 metrics.recordCustomMetric({
   name: 'greffe_lookup_performance',
   value: lookupTime,
@@ -481,13 +481,13 @@ metrics.recordCustomMetric({
 ### 3. API Adaptability
 
 ```typescript
-// Système de validation détecte automatiquement changements
+// Validation system automatically detects changes
 const changes = detectApiChanges(newResponse, baseline)
 if (changes.riskLevel === 'high') {
-  // Notification développeur + fallback automatique
+  // Developer notification + automatic fallback
   notifyApiChange(changes)
   return handleDeprecatedFormat(newResponse)
 }
 ```
 
-Cette architecture garantit performance, fiabilité et maintenabilité à long terme tout en conservant la simplicité d'usage pour l'utilisateur final.
+This architecture ensures long-term performance, reliability, and maintainability while preserving simplicity for the end user.

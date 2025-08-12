@@ -148,7 +148,7 @@ describe("markdown-builder", () => {
                 },
               },
             },
-            roleEntreprise: "5141", // Directeur général
+            roleEntreprise: "5141", // General Director
           },
           {
             personnePhysique: {
@@ -160,7 +160,7 @@ describe("markdown-builder", () => {
                 },
               },
             },
-            roleEntreprise: "5132", // Président (higher priority)
+            roleEntreprise: "5132", // President (higher priority)
           },
         ],
       };

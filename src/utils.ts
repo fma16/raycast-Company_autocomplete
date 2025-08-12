@@ -20,7 +20,7 @@ export const FALLBACK_VALUES = {
   NATIONALITY: "[[Nationality not provided]]",
 };
 
-// Mapping des codes de forme juridique INPI vers les libellés complets
+// Mapping of INPI legal form codes to complete labels
 const LEGAL_FORM_MAPPING: { [key: string]: string } = {
   "1000": "Entrepreneur individuel",
   "2110": "Indivision entre personnes physiques",
