@@ -1,0 +1,148 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, v1.1, develop ]
+  pull_request:
+    branches: [ main, v1.1 ]
+
+jobs:
+  # Fast unit tests - run on every push
+  test-unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test -- --testPathPattern="(utils|services)/__tests__" --testPathIgnorePatterns="integration" --coverage=false --silent
+
+      - name: Check TypeScript
+        run: npx tsc --noEmit
+
+  # Integration tests with mocked data - run on PR and main
+  test-integration:
+    name: Integration Tests (Mocked)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/v1.1'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify mocked dataset exists
+        run: |
+          if [ ! -f "assets/mocked-api-responses.json" ]; then
+            echo "❌ Mocked API responses not found!"
+            echo "Please generate the dataset locally with:"
+            echo "cd local && npx ts-node generate-mock-dataset.ts"
+            exit 1
+          fi
+          echo "✅ Mocked dataset found"
+
+      - name: Run mocked integration tests
+        run: npm test -- --testPathPattern="api-mocked.integration.test.ts" --testTimeout=10000
+        env:
+          FORCE_MOCK: 'true'
+
+  # Performance tests - run on specific events
+  test-performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request' || contains(github.event.head_commit.message, '[perf]')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run performance tests
+        run: npm test -- --testPathPattern="performance.test.ts" --testTimeout=10000
+
+  # Full test suite - run on releases only
+  test-full:
+    name: Full Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run all tests with coverage
+        run: npm test -- --coverage --coverageDirectory=coverage --coverageReporters=lcov,text-summary
+        env:
+          INPI_USERNAME: ${{ secrets.INPI_USERNAME }}
+          INPI_PASSWORD: ${{ secrets.INPI_PASSWORD }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+  # Lint and format check
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        run: npx prettier --check "src/**/*.{ts,tsx,js,jsx,json,md}"

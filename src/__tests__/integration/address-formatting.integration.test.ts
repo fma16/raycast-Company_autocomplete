@@ -2,7 +2,7 @@
  * Tests d'intégration pour le formatage d'adresses avec des données réelles
  */
 
-import { describe, it, expect } from "@jest/globals";
+import { describe, expect } from "@jest/globals";
 import { formatAddress } from "../../utils";
 import { expandStreetType } from "../../services/address-formatter";
 import { AddressInfo } from "../../types";
@@ -18,11 +18,11 @@ describe("Address Formatting Integration Tests", () => {
               typeVoie: "BD",
               libelleVoie: "HAUSSMANN",
               codePostal: "75009",
-              commune: "PARIS"
-            }
+              commune: "PARIS",
+            },
           },
           expected: "1 boulevard Haussmann, 75009 Paris",
-          description: "Boulevard Haussmann Paris"
+          description: "Boulevard Haussmann Paris",
         },
         {
           input: {
@@ -31,11 +31,11 @@ describe("Address Formatting Integration Tests", () => {
               typeVoie: "AV",
               libelleVoie: "VICTOR HUGO",
               codePostal: "75116",
-              commune: "PARIS"
-            }
+              commune: "PARIS",
+            },
           },
           expected: "42 avenue Victor Hugo, 75116 Paris",
-          description: "Avenue Victor Hugo Paris"
+          description: "Avenue Victor Hugo Paris",
         },
         {
           input: {
@@ -44,11 +44,11 @@ describe("Address Formatting Integration Tests", () => {
               typeVoie: "PL",
               libelleVoie: "BELLECOUR",
               codePostal: "69002",
-              commune: "LYON"
-            }
+              commune: "LYON",
+            },
           },
           expected: "15 place Bellecour, 69002 Lyon",
-          description: "Place Bellecour Lyon"
+          description: "Place Bellecour Lyon",
         },
         {
           input: {
@@ -56,11 +56,11 @@ describe("Address Formatting Integration Tests", () => {
               typeVoie: "CHE",
               libelleVoie: "DES OLIVIERS",
               codePostal: "13001",
-              commune: "MARSEILLE"
-            }
+              commune: "MARSEILLE",
+            },
           },
           expected: "chemin des Oliviers, 13001 Marseille",
-          description: "Chemin des Oliviers Marseille"
+          description: "Chemin des Oliviers Marseille",
         },
         {
           input: {
@@ -69,11 +69,11 @@ describe("Address Formatting Integration Tests", () => {
               typeVoie: "RUE",
               libelleVoie: "DE LA REPUBLIQUE",
               codePostal: "13001",
-              commune: "MARSEILLE"
-            }
+              commune: "MARSEILLE",
+            },
           },
           expected: "3 rue de la Republique, 13001 Marseille",
-          description: "Rue de la République Marseille"
+          description: "Rue de la République Marseille",
         },
         {
           input: {
@@ -82,12 +82,12 @@ describe("Address Formatting Integration Tests", () => {
               typeVoie: "IMP",
               libelleVoie: "DU GENERAL DE GAULLE",
               codePostal: "69001",
-              commune: "LYON"
-            }
+              commune: "LYON",
+            },
           },
           expected: "8 impasse du General de Gaulle, 69001 Lyon",
-          description: "Impasse du Général de Gaulle Lyon"
-        }
+          description: "Impasse du Général de Gaulle Lyon",
+        },
       ];
 
       testCases.forEach(({ input, expected, description }) => {
@@ -107,8 +107,8 @@ describe("Address Formatting Integration Tests", () => {
           typeVoie: "BD",
           libelleVoie: "DE LA LIBERTE",
           codePostal: "75001",
-          commune: "PARIS"
-        }
+          commune: "PARIS",
+        },
       };
 
       const result = formatAddress(complexAddress);
@@ -120,8 +120,8 @@ describe("Address Formatting Integration Tests", () => {
         adresse: {
           typeVoie: "AV",
           libelleVoie: "INCOMPLETE",
-          commune: "PARIS"
-        }
+          commune: "PARIS",
+        },
       };
 
       const result = formatAddress(partialAddress);
@@ -143,7 +143,7 @@ describe("Address Formatting Integration Tests", () => {
         { abbrev: "FG", expected: "Faubourg" },
         { abbrev: "QUAI", expected: "Quai" },
         { abbrev: "RPT", expected: "Rond-point" },
-        { abbrev: "SQ", expected: "Square" }
+        { abbrev: "SQ", expected: "Square" },
       ];
 
       streetTypes.forEach(({ abbrev, expected }) => {
@@ -154,8 +154,8 @@ describe("Address Formatting Integration Tests", () => {
 
     test("should handle case variations consistently", () => {
       const variations = ["bd", "BD", "Bd", " bd ", "  BD  "];
-      
-      variations.forEach(variation => {
+
+      variations.forEach((variation) => {
         const result = expandStreetType(variation);
         expect(result).toBe("Boulevard");
       });
@@ -170,19 +170,19 @@ describe("Address Formatting Integration Tests", () => {
           typeVoie: "RUE",
           libelleVoie: "DU FOUR ET DE LA PAIX",
           codePostal: "75001",
-          commune: "PARIS"
-        }
+          commune: "PARIS",
+        },
       };
 
       const result = formatAddress(testAddress);
       expect(result).toBe("10 rue du Four et de la Paix, 75001 Paris");
-      
+
       // Verify that articles stay lowercase
       expect(result).toContain("du");
       expect(result).toContain("et");
       expect(result).toContain("de");
       expect(result).toContain("la");
-      
+
       // Verify that main words are capitalized
       expect(result).toContain("Four");
       expect(result).toContain("Paix");
@@ -192,7 +192,7 @@ describe("Address Formatting Integration Tests", () => {
   describe("Performance with address formatting", () => {
     test("should format addresses efficiently", () => {
       const startTime = Date.now();
-      
+
       // Test with 100 address formatting operations
       for (let i = 0; i < 100; i++) {
         const testAddress: AddressInfo = {
@@ -201,16 +201,16 @@ describe("Address Formatting Integration Tests", () => {
             typeVoie: "BD",
             libelleVoie: `TEST STREET ${i}`,
             codePostal: "75001",
-            commune: "PARIS"
-          }
+            commune: "PARIS",
+          },
         };
-        
+
         formatAddress(testAddress);
       }
-      
+
       const endTime = Date.now();
       const duration = endTime - startTime;
-      
+
       // Should complete 100 operations in under 50ms
       expect(duration).toBeLessThan(50);
       console.log(`✓ Formatted 100 addresses in ${duration}ms`);

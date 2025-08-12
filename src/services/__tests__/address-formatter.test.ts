@@ -47,7 +47,7 @@ describe("Address Formatter Service", () => {
         typeVoie: "BD",
         libelleVoie: "VICTOR HUGO",
         codePostal: "75001",
-        commune: "PARIS"
+        commune: "PARIS",
       };
 
       const result = formatAddress(address);
@@ -60,7 +60,7 @@ describe("Address Formatter Service", () => {
         typeVoie: "AV",
         libelleVoie: "DES CHAMPS ELYSEES",
         codePostal: "75008",
-        commune: "PARIS"
+        commune: "PARIS",
       };
 
       const result = formatAddress(address);
@@ -72,7 +72,7 @@ describe("Address Formatter Service", () => {
         typeVoie: "RUE",
         libelleVoie: "DE LA PAIX",
         codePostal: "75001",
-        commune: "PARIS"
+        commune: "PARIS",
       };
 
       const result = formatAddress(address);
@@ -84,7 +84,7 @@ describe("Address Formatter Service", () => {
         numeroVoie: "10",
         typeVoie: "PL",
         libelleVoie: "VENDOME",
-        commune: "PARIS"
+        commune: "PARIS",
       };
 
       const result = formatAddress(address);
@@ -102,7 +102,7 @@ describe("Address Formatter Service", () => {
         typeVoie: "UNKNOWN",
         libelleVoie: "TEST STREET",
         codePostal: "75001",
-        commune: "PARIS"
+        commune: "PARIS",
       };
 
       const result = formatAddress(address);
@@ -115,7 +115,7 @@ describe("Address Formatter Service", () => {
         typeVoie: "RUE",
         libelleVoie: "DU GENERAL DE GAULLE",
         codePostal: "69001",
-        commune: "LYON"
+        commune: "LYON",
       };
 
       const result = formatAddress(address);
@@ -141,13 +141,13 @@ describe("Address Formatter Service", () => {
   describe("getAddressTypeMappings", () => {
     test("should return complete mappings object", () => {
       const mappings = getAddressTypeMappings();
-      
+
       expect(mappings).toBeDefined();
       expect(typeof mappings).toBe("object");
       expect(mappings["BD"]).toBe("BOULEVARD");
       expect(mappings["AV"]).toBe("AVENUE");
       expect(mappings["RUE"]).toBe("RUE");
-      
+
       // Should have reasonable number of mappings
       expect(Object.keys(mappings).length).toBeGreaterThan(200);
     });
@@ -158,20 +158,26 @@ describe("Address Formatter Service", () => {
       const addresses = [
         {
           input: { numeroVoie: "1", typeVoie: "BD", libelleVoie: "HAUSSMANN", codePostal: "75009", commune: "PARIS" },
-          expected: "1 boulevard Haussmann, 75009 Paris"
+          expected: "1 boulevard Haussmann, 75009 Paris",
         },
         {
-          input: { numeroVoie: "42", typeVoie: "AV", libelleVoie: "VICTOR HUGO", codePostal: "75116", commune: "PARIS" },
-          expected: "42 avenue Victor Hugo, 75116 Paris"
+          input: {
+            numeroVoie: "42",
+            typeVoie: "AV",
+            libelleVoie: "VICTOR HUGO",
+            codePostal: "75116",
+            commune: "PARIS",
+          },
+          expected: "42 avenue Victor Hugo, 75116 Paris",
         },
         {
           input: { numeroVoie: "15", typeVoie: "PL", libelleVoie: "BELLECOUR", codePostal: "69002", commune: "LYON" },
-          expected: "15 place Bellecour, 69002 Lyon"
+          expected: "15 place Bellecour, 69002 Lyon",
         },
         {
           input: { typeVoie: "CHE", libelleVoie: "DES OLIVIERS", codePostal: "13001", commune: "MARSEILLE" },
-          expected: "chemin des Oliviers, 13001 Marseille"
-        }
+          expected: "chemin des Oliviers, 13001 Marseille",
+        },
       ];
 
       addresses.forEach(({ input, expected }) => {
@@ -185,7 +191,7 @@ describe("Address Formatter Service", () => {
         typeVoie: "RUE",
         libelleVoie: "DE LA REPUBLIQUE",
         codePostal: "13001",
-        commune: "MARSEILLE"
+        commune: "MARSEILLE",
       };
 
       const result = formatAddress(address);

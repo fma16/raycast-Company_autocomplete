@@ -226,7 +226,7 @@ describe("markdown-builder", () => {
               /* minimal data */
             },
             natureCreation: {
-              formeJuridique: "5599"
+              formeJuridique: "5599",
             },
           },
         },

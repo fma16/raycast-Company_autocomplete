@@ -64,8 +64,12 @@
     "publish": "npx @raycast/api@latest publish",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:integration": "jest --testPathPattern=integration --timeout=30000",
-    "test:real-api": "jest real-api.integration.test.ts --timeout=60000",
+    "test:unit": "jest --testPathPattern=\"(utils|services)/__tests__\" --testPathIgnorePatterns=\"integration|local\"",
+    "test:integration": "jest --testPathPattern=\"api-mocked.integration.test.ts\" --timeout=10000",
+    "test:integration:real": "jest --testPathPattern=\"api-real.local.test.ts\" --timeout=60000",
+    "test:performance": "jest --testPathPattern=\"performance.test.ts\" --timeout=10000",
+    "test:ci": "jest --coverage=false --silent --maxWorkers=2",
+    "test:full": "jest --coverage --verbose",
     "build-greffes": "ts-node transform/build-greffes-index.ts",
     "compress-greffes": "ts-node scripts/compress-greffes.ts"
   }

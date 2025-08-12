@@ -64,8 +64,8 @@ describe("utils", () => {
           typeVoie: "BD",
           libelleVoie: "VICTOR HUGO",
           codePostal: "75001",
-          commune: "PARIS"
-        }
+          commune: "PARIS",
+        },
       };
 
       const result = formatAddress(address);
@@ -79,8 +79,8 @@ describe("utils", () => {
           typeVoie: "AV",
           voie: "DES CHAMPS ELYSEES",
           codePostal: "75008",
-          commune: "PARIS"
-        }
+          commune: "PARIS",
+        },
       };
 
       const result = formatAddress(address);
@@ -94,8 +94,8 @@ describe("utils", () => {
           typeVoie: "UNKNOWN",
           libelleVoie: "TEST STREET",
           codePostal: "75001",
-          commune: "PARIS"
-        }
+          commune: "PARIS",
+        },
       };
 
       const result = formatAddress(address);
@@ -108,8 +108,8 @@ describe("utils", () => {
           numeroVoie: "5",
           libelleVoie: "REPUBLIQUE",
           codePostal: "13001",
-          commune: "MARSEILLE"
-        }
+          commune: "MARSEILLE",
+        },
       };
 
       const result = formatAddress(address);
@@ -118,7 +118,7 @@ describe("utils", () => {
 
     it("should return fallback for empty address", () => {
       const address: AddressInfo = {
-        adresse: {}
+        adresse: {},
       };
 
       const result = formatAddress(address);

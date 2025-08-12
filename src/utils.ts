@@ -146,20 +146,18 @@ export function formatAddress(address: AddressInfo): string {
   if (!address || !address.adresse) return FALLBACK_VALUE;
 
   const addr = address.adresse;
-  
+
   // Build street part with expanded type
-  const streetParts = [
-    addr.complementLocalisation,
-    addr.numVoie || addr.numeroVoie,
-    addr.indiceRepetition,
-  ].filter(Boolean);
-  
+  const streetParts = [addr.complementLocalisation, addr.numVoie || addr.numeroVoie, addr.indiceRepetition].filter(
+    Boolean,
+  );
+
   // Expand street type (BD → Boulevard, AV → Avenue, etc.)
   if (addr.typeVoie) {
     const expandedType = expandStreetType(addr.typeVoie);
     streetParts.push(expandedType.toLowerCase()); // Keep lowercase for French conventions
   }
-  
+
   // Add street name
   if (addr.voie || addr.libelleVoie) {
     const streetName = toTitleCase(addr.voie || addr.libelleVoie);
@@ -167,7 +165,7 @@ export function formatAddress(address: AddressInfo): string {
   }
 
   const street = streetParts.join(" ");
-  
+
   // Format city with proper capitalization
   const formattedCity = addr.commune ? toTitleCase(addr.commune) : FALLBACK_VALUE;
   const city = `${formatField(addr.codePostal)} ${formattedCity}`;

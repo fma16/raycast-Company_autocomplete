@@ -15,18 +15,18 @@ export interface AddressTypeMapping {
  */
 export function expandStreetType(streetType: string): string {
   if (!streetType) return "";
-  
+
   // Normalize input - remove extra spaces, convert to uppercase
   const normalized = streetType.trim().toUpperCase();
-  
+
   // Check if we have a mapping for this abbreviation
   const expanded = addressTypeMappings[normalized as keyof typeof addressTypeMappings];
-  
+
   if (expanded) {
     // Return with proper capitalization (Title Case)
     return toTitleCase(expanded);
   }
-  
+
   // If no mapping found, return original with title case
   return toTitleCase(streetType);
 }
@@ -43,27 +43,27 @@ export function formatAddress(address: {
   [key: string]: any;
 }): string {
   if (!address) return "";
-  
+
   const parts: string[] = [];
-  
+
   // Street number
   if (address.numeroVoie) {
     parts.push(address.numeroVoie);
   }
-  
+
   // Street type (expanded from abbreviation)
   if (address.typeVoie) {
     const expandedType = expandStreetType(address.typeVoie);
     parts.push(expandedType.toLowerCase()); // Keep lowercase for French conventions
   }
-  
+
   // Street name
   if (address.libelleVoie) {
     parts.push(formatStreetName(address.libelleVoie));
   }
-  
+
   const streetPart = parts.join(" ");
-  
+
   // Add postal code and city
   const locationParts: string[] = [];
   if (address.codePostal) {
@@ -72,11 +72,11 @@ export function formatAddress(address: {
   if (address.commune) {
     locationParts.push(toTitleCase(address.commune));
   }
-  
+
   if (locationParts.length > 0) {
     return `${streetPart}, ${locationParts.join(" ")}`;
   }
-  
+
   return streetPart;
 }
 
@@ -85,13 +85,13 @@ export function formatAddress(address: {
  */
 function formatStreetName(streetName: string): string {
   if (!streetName) return "";
-  
+
   return streetName
     .toLowerCase()
     .split(/\s+/)
-    .map((word, index) => {
+    .map((word, _index) => {
       // Handle French articles and prepositions that should stay lowercase
-      const lowercaseWords = ['de', 'du', 'des', 'le', 'la', 'les', 'et', 'à', 'au', 'aux', 'en', 'sur', 'sous'];
+      const lowercaseWords = ["de", "du", "des", "le", "la", "les", "et", "à", "au", "aux", "en", "sur", "sous"];
       if (lowercaseWords.includes(word)) {
         return word;
       }
@@ -105,13 +105,13 @@ function formatStreetName(streetName: string): string {
  */
 function toTitleCase(str: string): string {
   if (!str) return "";
-  
+
   return str
     .toLowerCase()
     .split(/\s+/)
-    .map(word => {
+    .map((word) => {
       // Handle French articles and prepositions that should stay lowercase
-      const lowercaseWords = ['de', 'du', 'des', 'le', 'la', 'les', 'et', 'à', 'au', 'aux', 'en', 'sur', 'sous'];
+      const lowercaseWords = ["de", "du", "des", "le", "la", "les", "et", "à", "au", "aux", "en", "sur", "sous"];
       if (lowercaseWords.includes(word)) {
         return word;
       }
