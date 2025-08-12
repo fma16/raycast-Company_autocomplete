@@ -1,6 +1,8 @@
 import { AddressInfo } from "./types";
 import { environment } from "@raycast/api";
 import roleMappings from "../assets/role-mappings.json";
+import { expandStreetType } from "./services/address-formatter";
+import { toTitleCase } from "./utils/formatting";
 
 const FALLBACK_VALUE = "[[to be completed]]";
 
@@ -144,16 +146,31 @@ export function formatAddress(address: AddressInfo): string {
   if (!address || !address.adresse) return FALLBACK_VALUE;
 
   const addr = address.adresse;
-  const parts = [
+  
+  // Build street part with expanded type
+  const streetParts = [
     addr.complementLocalisation,
     addr.numVoie || addr.numeroVoie,
     addr.indiceRepetition,
-    addr.typeVoie,
-    addr.voie || addr.libelleVoie,
-  ];
+  ].filter(Boolean);
+  
+  // Expand street type (BD → Boulevard, AV → Avenue, etc.)
+  if (addr.typeVoie) {
+    const expandedType = expandStreetType(addr.typeVoie);
+    streetParts.push(expandedType.toLowerCase()); // Keep lowercase for French conventions
+  }
+  
+  // Add street name
+  if (addr.voie || addr.libelleVoie) {
+    const streetName = toTitleCase(addr.voie || addr.libelleVoie);
+    streetParts.push(streetName);
+  }
 
-  const street = parts.filter(Boolean).join(" ");
-  const city = `${formatField(addr.codePostal)} ${formatField(addr.commune)}`;
+  const street = streetParts.join(" ");
+  
+  // Format city with proper capitalization
+  const formattedCity = addr.commune ? toTitleCase(addr.commune) : FALLBACK_VALUE;
+  const city = `${formatField(addr.codePostal)} ${formattedCity}`;
 
   if (!street && city.trim() === `${FALLBACK_VALUE} ${FALLBACK_VALUE}`) return FALLBACK_VALUE;
 

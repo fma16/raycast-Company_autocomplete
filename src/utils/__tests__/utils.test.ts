@@ -1,5 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import { validateAndExtractSiren, formatSiren, formatFrenchNumber } from "../formatting";
+import { formatAddress } from "../../utils";
+import { AddressInfo } from "../../types";
 
 describe("utils", () => {
   describe("validateAndExtractSiren", () => {
@@ -51,6 +53,76 @@ describe("utils", () => {
     it("should return fallback for invalid input", () => {
       expect(formatFrenchNumber("invalid")).toBe("[[to be completed]]");
       expect(formatFrenchNumber("")).toBe("[[to be completed]]");
+    });
+  });
+
+  describe("formatAddress", () => {
+    it("should format address with expanded street type", () => {
+      const address: AddressInfo = {
+        adresse: {
+          numeroVoie: "123",
+          typeVoie: "BD",
+          libelleVoie: "VICTOR HUGO",
+          codePostal: "75001",
+          commune: "PARIS"
+        }
+      };
+
+      const result = formatAddress(address);
+      expect(result).toBe("123 boulevard Victor Hugo, 75001 Paris");
+    });
+
+    it("should handle avenue abbreviation", () => {
+      const address: AddressInfo = {
+        adresse: {
+          numeroVoie: "42",
+          typeVoie: "AV",
+          voie: "DES CHAMPS ELYSEES",
+          codePostal: "75008",
+          commune: "PARIS"
+        }
+      };
+
+      const result = formatAddress(address);
+      expect(result).toBe("42 avenue des Champs Elysees, 75008 Paris");
+    });
+
+    it("should handle unknown street type gracefully", () => {
+      const address: AddressInfo = {
+        adresse: {
+          numeroVoie: "10",
+          typeVoie: "UNKNOWN",
+          libelleVoie: "TEST STREET",
+          codePostal: "75001",
+          commune: "PARIS"
+        }
+      };
+
+      const result = formatAddress(address);
+      expect(result).toBe("10 unknown Test Street, 75001 Paris");
+    });
+
+    it("should handle missing street type", () => {
+      const address: AddressInfo = {
+        adresse: {
+          numeroVoie: "5",
+          libelleVoie: "REPUBLIQUE",
+          codePostal: "13001",
+          commune: "MARSEILLE"
+        }
+      };
+
+      const result = formatAddress(address);
+      expect(result).toBe("5 Republique, 13001 Marseille");
+    });
+
+    it("should return fallback for empty address", () => {
+      const address: AddressInfo = {
+        adresse: {}
+      };
+
+      const result = formatAddress(address);
+      expect(result).toBe("[[to be completed]]");
     });
   });
 });

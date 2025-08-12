@@ -75,7 +75,19 @@ export function formatFrenchNumber(input: string | number): string {
  */
 export function toTitleCase(str: string): string {
   if (!str) return "";
-  return str.toLowerCase().replace(/^./, (char) => char.toUpperCase());
+  
+  return str
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word, index) => {
+      // Handle French articles and prepositions that should stay lowercase
+      const lowercaseWords = ['de', 'du', 'des', 'le', 'la', 'les', 'et', 'à', 'au', 'aux', 'en', 'sur', 'sous'];
+      if (lowercaseWords.includes(word)) {
+        return word;
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
 }
 
 /**
