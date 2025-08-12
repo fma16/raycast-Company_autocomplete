@@ -115,7 +115,7 @@ export async function login(): Promise<string> {
     let success = false;
     let statusCode = 0;
     let errorType: string | undefined;
-    
+
     try {
       const apiClient = getApiClient();
       const response = await apiClient.post<ApiLoginResponse>("/api/sso/login", {
@@ -124,7 +124,7 @@ export async function login(): Promise<string> {
       });
 
       statusCode = response.status;
-      
+
       if (response.data?.token) {
         console.log("Authentication successful. Caching token.");
         success = true;
@@ -136,7 +136,7 @@ export async function login(): Promise<string> {
       }
       throw new Error("Invalid login response from INPI API.");
     } catch (error) {
-      errorType = axios.isAxiosError(error) ? 'AxiosError' : 'UnknownError';
+      errorType = axios.isAxiosError(error) ? "AxiosError" : "UnknownError";
       if (axios.isAxiosError(error) && error.response?.status) {
         statusCode = error.response.status;
       }
@@ -157,12 +157,12 @@ export async function login(): Promise<string> {
       // Record metrics
       const responseTime = Date.now() - startTime;
       metrics.recordApiCall({
-        endpoint: '/api/sso/login',
-        method: 'POST',
+        endpoint: "/api/sso/login",
+        method: "POST",
         responseTime,
         statusCode,
         success,
-        errorType
+        errorType,
       });
     }
   });
@@ -187,7 +187,7 @@ export async function getCompanyInfo(siren: string): Promise<CompanyData> {
     let success = false;
     let statusCode = 0;
     let errorType: string | undefined;
-    
+
     try {
       const apiClient = getApiClient(token);
       console.log(`Fetching INPI data for SIREN ${siren}`);
@@ -195,17 +195,17 @@ export async function getCompanyInfo(siren: string): Promise<CompanyData> {
 
       statusCode = response.status;
       success = true;
-      
+
       // Cache the successful response
       companyCache.set(siren, { data: response.data, timestamp: Date.now() });
 
       return response.data;
     } catch (error) {
-      errorType = axios.isAxiosError(error) ? 'AxiosError' : 'UnknownError';
+      errorType = axios.isAxiosError(error) ? "AxiosError" : "UnknownError";
       if (axios.isAxiosError(error) && error.response?.status) {
         statusCode = error.response.status;
       }
-      
+
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 404) {
           throw new Error(`No company found for SIREN ${siren}.`);
@@ -228,11 +228,11 @@ export async function getCompanyInfo(siren: string): Promise<CompanyData> {
       const responseTime = Date.now() - startTime;
       metrics.recordApiCall({
         endpoint: `/api/companies/${siren}`,
-        method: 'GET',
+        method: "GET",
         responseTime,
         statusCode,
         success,
-        errorType
+        errorType,
       });
     }
   });

@@ -3,7 +3,7 @@
  * Ensures API responses match expected structure and detects changes
  */
 
-import { CompanyData } from '../types';
+import { CompanyData } from "../types";
 
 export interface ValidationResult {
   valid: boolean;
@@ -18,7 +18,7 @@ export interface ApiChangeDetection {
   newFields: string[];
   removedFields: string[];
   typeChanges: string[];
-  riskLevel: 'low' | 'medium' | 'high';
+  riskLevel: "low" | "medium" | "high";
 }
 
 /**
@@ -27,16 +27,16 @@ export interface ApiChangeDetection {
 const EXPECTED_STRUCTURE = {
   formality: {
     required: true,
-    type: 'object',
+    type: "object",
     fields: {
-      siren: { required: true, type: 'string' },
+      siren: { required: true, type: "string" },
       content: {
         required: true,
-        type: 'object',
-        oneOf: ['personneMorale', 'personnePhysique']
-      }
-    }
-  }
+        type: "object",
+        oneOf: ["personneMorale", "personnePhysique"],
+      },
+    },
+  },
 };
 
 /**
@@ -48,24 +48,24 @@ export function validateCompanyDataStructure(data: any): ValidationResult {
     errors: [],
     warnings: [],
     missingFields: [],
-    unexpectedFields: []
+    unexpectedFields: [],
   };
-  
-  if (!data || typeof data !== 'object') {
+
+  if (!data || typeof data !== "object") {
     result.valid = false;
-    result.errors.push('Response is not an object');
+    result.errors.push("Response is not an object");
     return result;
   }
-  
+
   // Check required root fields
   if (!data.formality) {
     result.valid = false;
-    result.errors.push('Missing required field: formality');
-    result.missingFields.push('formality');
+    result.errors.push("Missing required field: formality");
+    result.missingFields.push("formality");
   } else {
     validateFormalityStructure(data.formality, result);
   }
-  
+
   return result;
 }
 
@@ -73,31 +73,31 @@ export function validateCompanyDataStructure(data: any): ValidationResult {
  * Validates the formality section structure
  */
 function validateFormalityStructure(formality: any, result: ValidationResult): void {
-  if (!formality || typeof formality !== 'object') {
+  if (!formality || typeof formality !== "object") {
     result.valid = false;
-    result.errors.push('formality is not an object');
+    result.errors.push("formality is not an object");
     return;
   }
-  
+
   // Check SIREN
   if (!formality.siren) {
     result.valid = false;
-    result.errors.push('Missing required field: formality.siren');
-    result.missingFields.push('formality.siren');
-  } else if (typeof formality.siren !== 'string') {
-    result.errors.push('formality.siren should be string');
+    result.errors.push("Missing required field: formality.siren");
+    result.missingFields.push("formality.siren");
+  } else if (typeof formality.siren !== "string") {
+    result.errors.push("formality.siren should be string");
   } else if (!/^\d{9}$/.test(formality.siren)) {
-    result.warnings.push('formality.siren is not 9 digits');
+    result.warnings.push("formality.siren is not 9 digits");
   }
-  
+
   // Check content
   if (!formality.content) {
     result.valid = false;
-    result.errors.push('Missing required field: formality.content');
-    result.missingFields.push('formality.content');
+    result.errors.push("Missing required field: formality.content");
+    result.missingFields.push("formality.content");
     return;
   }
-  
+
   validateContentStructure(formality.content, result);
 }
 
@@ -105,30 +105,30 @@ function validateFormalityStructure(formality: any, result: ValidationResult): v
  * Validates the content section structure
  */
 function validateContentStructure(content: any, result: ValidationResult): void {
-  if (!content || typeof content !== 'object') {
+  if (!content || typeof content !== "object") {
     result.valid = false;
-    result.errors.push('formality.content is not an object');
+    result.errors.push("formality.content is not an object");
     return;
   }
-  
+
   const hasPersonneMorale = content.personneMorale;
   const hasPersonnePhysique = content.personnePhysique;
-  
+
   if (!hasPersonneMorale && !hasPersonnePhysique) {
     result.valid = false;
-    result.errors.push('Missing both personneMorale and personnePhysique');
-    result.missingFields.push('formality.content.personneMorale', 'formality.content.personnePhysique');
+    result.errors.push("Missing both personneMorale and personnePhysique");
+    result.missingFields.push("formality.content.personneMorale", "formality.content.personnePhysique");
     return;
   }
-  
+
   if (hasPersonneMorale && hasPersonnePhysique) {
-    result.warnings.push('Both personneMorale and personnePhysique present (unusual)');
+    result.warnings.push("Both personneMorale and personnePhysique present (unusual)");
   }
-  
+
   if (hasPersonneMorale) {
     validatePersonneMoraleStructure(content.personneMorale, result);
   }
-  
+
   if (hasPersonnePhysique) {
     validatePersonnePhysiqueStructure(content.personnePhysique, result);
   }
@@ -138,28 +138,25 @@ function validateContentStructure(content: any, result: ValidationResult): void 
  * Validates PersonneMorale structure
  */
 function validatePersonneMoraleStructure(personneMorale: any, result: ValidationResult): void {
-  if (!personneMorale || typeof personneMorale !== 'object') {
-    result.errors.push('personneMorale is not an object');
+  if (!personneMorale || typeof personneMorale !== "object") {
+    result.errors.push("personneMorale is not an object");
     return;
   }
-  
+
   // Check for essential fields
-  const essentialFields = [
-    'denomination',
-    'adresseEntreprise'
-  ];
-  
-  essentialFields.forEach(field => {
+  const essentialFields = ["denomination", "adresseEntreprise"];
+
+  essentialFields.forEach((field) => {
     if (!personneMorale[field]) {
       result.warnings.push(`Missing recommended field: personneMorale.${field}`);
     }
   });
-  
+
   // Validate address structure if present
   if (personneMorale.adresseEntreprise) {
-    validateAddressStructure(personneMorale.adresseEntreprise, 'personneMorale.adresseEntreprise', result);
+    validateAddressStructure(personneMorale.adresseEntreprise, "personneMorale.adresseEntreprise", result);
   }
-  
+
   // Validate composition for representatives
   if (personneMorale.composition) {
     validateCompositionStructure(personneMorale.composition, result);
@@ -167,20 +164,20 @@ function validatePersonneMoraleStructure(personneMorale: any, result: Validation
 }
 
 /**
- * Validates PersonnePhysique structure  
+ * Validates PersonnePhysique structure
  */
 function validatePersonnePhysiqueStructure(personnePhysique: any, result: ValidationResult): void {
-  if (!personnePhysique || typeof personnePhysique !== 'object') {
-    result.errors.push('personnePhysique is not an object');
+  if (!personnePhysique || typeof personnePhysique !== "object") {
+    result.errors.push("personnePhysique is not an object");
     return;
   }
-  
+
   // Check for identité structure
   if (personnePhysique.identite) {
     if (personnePhysique.identite.entrepreneur) {
       const desc = personnePhysique.identite.entrepreneur.descriptionPersonne;
       if (!desc) {
-        result.warnings.push('Missing entrepreneur description');
+        result.warnings.push("Missing entrepreneur description");
       }
     }
   }
@@ -190,16 +187,16 @@ function validatePersonnePhysiqueStructure(personnePhysique: any, result: Valida
  * Validates address structure
  */
 function validateAddressStructure(address: any, path: string, result: ValidationResult): void {
-  if (!address || typeof address !== 'object') {
+  if (!address || typeof address !== "object") {
     result.warnings.push(`${path} is not an object`);
     return;
   }
-  
+
   if (address.adresse) {
     const addr = address.adresse;
-    const expectedAddressFields = ['codePostal', 'commune'];
-    
-    expectedAddressFields.forEach(field => {
+    const expectedAddressFields = ["codePostal", "commune"];
+
+    expectedAddressFields.forEach((field) => {
       if (!addr[field]) {
         result.warnings.push(`Missing address field: ${path}.adresse.${field}`);
       }
@@ -211,17 +208,17 @@ function validateAddressStructure(address: any, path: string, result: Validation
  * Validates composition structure for representatives
  */
 function validateCompositionStructure(composition: any, result: ValidationResult): void {
-  if (!composition || typeof composition !== 'object') {
-    result.warnings.push('composition is not an object');
+  if (!composition || typeof composition !== "object") {
+    result.warnings.push("composition is not an object");
     return;
   }
-  
+
   if (composition.pouvoirs) {
     if (!Array.isArray(composition.pouvoirs)) {
-      result.warnings.push('composition.pouvoirs is not an array');
+      result.warnings.push("composition.pouvoirs is not an array");
       return;
     }
-    
+
     composition.pouvoirs.forEach((pouvoir: any, index: number) => {
       validatePouvoirStructure(pouvoir, index, result);
     });
@@ -232,20 +229,20 @@ function validateCompositionStructure(composition: any, result: ValidationResult
  * Validates individual pouvoir (representative) structure
  */
 function validatePouvoirStructure(pouvoir: any, index: number, result: ValidationResult): void {
-  if (!pouvoir || typeof pouvoir !== 'object') {
+  if (!pouvoir || typeof pouvoir !== "object") {
     result.warnings.push(`pouvoir[${index}] is not an object`);
     return;
   }
-  
+
   // Check for either new or old API format
   const hasNewFormat = pouvoir.individu?.descriptionPersonne;
   const hasOldFormat = pouvoir.personnePhysique?.identite?.descriptionPersonne;
   const hasEntreprise = pouvoir.entreprise;
-  
+
   if (!hasNewFormat && !hasOldFormat && !hasEntreprise) {
     result.warnings.push(`pouvoir[${index}] missing representative data (individu, personnePhysique, or entreprise)`);
   }
-  
+
   // Check role
   if (!pouvoir.roleEntreprise) {
     result.warnings.push(`pouvoir[${index}] missing roleEntreprise`);
@@ -255,68 +252,65 @@ function validatePouvoirStructure(pouvoir: any, index: number, result: Validatio
 /**
  * Detects changes in API structure compared to baseline
  */
-export function detectApiChanges(
-  currentResponse: any, 
-  baselineResponse: any
-): ApiChangeDetection {
+export function detectApiChanges(currentResponse: any, baselineResponse: any): ApiChangeDetection {
   const currentFields = extractFieldPaths(currentResponse);
   const baselineFields = extractFieldPaths(baselineResponse);
-  
-  const newFields = currentFields.filter(field => !baselineFields.includes(field));
-  const removedFields = baselineFields.filter(field => !currentFields.includes(field));
-  
+
+  const newFields = currentFields.filter((field) => !baselineFields.includes(field));
+  const removedFields = baselineFields.filter((field) => !currentFields.includes(field));
+
   // Detect type changes
   const typeChanges: string[] = [];
-  const commonFields = currentFields.filter(field => baselineFields.includes(field));
-  
-  commonFields.forEach(fieldPath => {
+  const commonFields = currentFields.filter((field) => baselineFields.includes(field));
+
+  commonFields.forEach((fieldPath) => {
     const currentType = getFieldType(currentResponse, fieldPath);
     const baselineType = getFieldType(baselineResponse, fieldPath);
-    
+
     if (currentType !== baselineType) {
       typeChanges.push(`${fieldPath}: ${baselineType} → ${currentType}`);
     }
   });
-  
+
   // Assess risk level
-  let riskLevel: 'low' | 'medium' | 'high' = 'low';
-  
+  let riskLevel: "low" | "medium" | "high" = "low";
+
   if (removedFields.length > 0) {
-    riskLevel = 'high'; // Removed fields are critical
+    riskLevel = "high"; // Removed fields are critical
   } else if (typeChanges.length > 0) {
-    riskLevel = 'medium'; // Type changes can break parsing
+    riskLevel = "medium"; // Type changes can break parsing
   } else if (newFields.length > 0) {
-    riskLevel = 'low'; // New fields are usually safe
+    riskLevel = "low"; // New fields are usually safe
   }
-  
+
   return {
     structureChanged: newFields.length > 0 || removedFields.length > 0 || typeChanges.length > 0,
     newFields,
     removedFields,
     typeChanges,
-    riskLevel
+    riskLevel,
   };
 }
 
 /**
  * Extracts all field paths from an object
  */
-function extractFieldPaths(obj: any, prefix: string = ''): string[] {
+function extractFieldPaths(obj: any, prefix: string = ""): string[] {
   const paths: string[] = [];
-  
-  if (!obj || typeof obj !== 'object') {
+
+  if (!obj || typeof obj !== "object") {
     return paths;
   }
-  
-  Object.keys(obj).forEach(key => {
+
+  Object.keys(obj).forEach((key) => {
     const fullPath = prefix ? `${prefix}.${key}` : key;
     paths.push(fullPath);
-    
-    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+
+    if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
       paths.push(...extractFieldPaths(obj[key], fullPath));
     }
   });
-  
+
   return paths;
 }
 
@@ -324,18 +318,18 @@ function extractFieldPaths(obj: any, prefix: string = ''): string[] {
  * Gets the type of a field at a specific path
  */
 function getFieldType(obj: any, path: string): string {
-  const parts = path.split('.');
+  const parts = path.split(".");
   let current = obj;
-  
+
   for (const part of parts) {
-    if (!current || typeof current !== 'object') {
-      return 'undefined';
+    if (!current || typeof current !== "object") {
+      return "undefined";
     }
     current = current[part];
   }
-  
-  if (current === null) return 'null';
-  if (Array.isArray(current)) return 'array';
+
+  if (current === null) return "null";
+  if (Array.isArray(current)) return "array";
   return typeof current;
 }
 
@@ -348,36 +342,36 @@ export function createApiBaseline(response: CompanyData): any {
     timestamp: Date.now(),
     structure: extractFieldPaths(response),
     types: extractFieldTypes(response),
-    version: '1.0'
+    version: "1.0",
   };
 }
 
 /**
  * Extracts field types for baseline comparison
  */
-function extractFieldTypes(obj: any, prefix: string = ''): Record<string, string> {
+function extractFieldTypes(obj: any, prefix: string = ""): Record<string, string> {
   const types: Record<string, string> = {};
-  
-  if (!obj || typeof obj !== 'object') {
+
+  if (!obj || typeof obj !== "object") {
     return types;
   }
-  
-  Object.keys(obj).forEach(key => {
+
+  Object.keys(obj).forEach((key) => {
     const fullPath = prefix ? `${prefix}.${key}` : key;
     const value = obj[key];
-    
+
     if (value === null) {
-      types[fullPath] = 'null';
+      types[fullPath] = "null";
     } else if (Array.isArray(value)) {
-      types[fullPath] = 'array';
+      types[fullPath] = "array";
     } else {
       types[fullPath] = typeof value;
     }
-    
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
       Object.assign(types, extractFieldTypes(value, fullPath));
     }
   });
-  
+
   return types;
 }

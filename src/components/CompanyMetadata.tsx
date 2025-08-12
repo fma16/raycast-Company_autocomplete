@@ -1,11 +1,6 @@
 import { Detail } from "@raycast/api";
 import { CompanyData } from "../types";
-import {
-  formatAddress,
-  formatField,
-  formatSiren,
-  getLegalFormLabel,
-} from "../utils";
+import { formatAddress, formatField, formatSiren, getLegalFormLabel } from "../utils";
 import { findGreffeByCodePostal } from "../services/greffe-lookup";
 
 interface CompanyMetadataProps {

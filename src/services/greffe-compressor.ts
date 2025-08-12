@@ -27,7 +27,7 @@ export function compressGreffeData(postalCodeMap: Record<string, string>): Compa
   const entries = Object.entries(postalCodeMap).sort(([a], [b]) => a.localeCompare(b));
   const ranges: GreffeRange[] = [];
   const singles: Record<string, string> = {};
-  
+
   if (entries.length === 0) {
     return {
       ranges: [],
@@ -36,8 +36,8 @@ export function compressGreffeData(postalCodeMap: Record<string, string>): Compa
         originalSize: 0,
         compressedSize: 0,
         compressionRatio: 0,
-        generatedAt: new Date().toISOString()
-      }
+        generatedAt: new Date().toISOString(),
+      },
     };
   }
 
@@ -45,7 +45,7 @@ export function compressGreffeData(postalCodeMap: Record<string, string>): Compa
     start: entries[0][0],
     end: entries[0][0],
     greffe: entries[0][1],
-    count: 1
+    count: 1,
   };
 
   // Build sequences of consecutive postal codes with same greffe
@@ -65,14 +65,14 @@ export function compressGreffeData(postalCodeMap: Record<string, string>): Compa
         ranges.push({
           start: currentRange.start,
           end: currentRange.end,
-          greffe: currentRange.greffe
+          greffe: currentRange.greffe,
         });
       } else {
         // Too short to be worth a range, store as singles
         const start = parseInt(currentRange.start);
         const end = parseInt(currentRange.end);
         for (let code = start; code <= end; code++) {
-          singles[code.toString().padStart(5, '0')] = currentRange.greffe;
+          singles[code.toString().padStart(5, "0")] = currentRange.greffe;
         }
       }
 
@@ -80,7 +80,7 @@ export function compressGreffeData(postalCodeMap: Record<string, string>): Compa
         start: code,
         end: code,
         greffe: greffe,
-        count: 1
+        count: 1,
       };
     }
   }
@@ -90,13 +90,13 @@ export function compressGreffeData(postalCodeMap: Record<string, string>): Compa
     ranges.push({
       start: currentRange.start,
       end: currentRange.end,
-      greffe: currentRange.greffe
+      greffe: currentRange.greffe,
     });
   } else {
     const start = parseInt(currentRange.start);
     const end = parseInt(currentRange.end);
     for (let code = start; code <= end; code++) {
-      singles[code.toString().padStart(5, '0')] = currentRange.greffe;
+      singles[code.toString().padStart(5, "0")] = currentRange.greffe;
     }
   }
 
@@ -112,8 +112,8 @@ export function compressGreffeData(postalCodeMap: Record<string, string>): Compa
       originalSize,
       compressedSize,
       compressionRatio: Math.round(compressionRatio * 10) / 10,
-      generatedAt: new Date().toISOString()
-    }
+      generatedAt: new Date().toISOString(),
+    },
   };
 }
 
@@ -164,10 +164,10 @@ export function decompressGreffeData(compressed: CompactGreffeData, postalCode: 
  */
 export function validateCompression(
   original: Record<string, string>,
-  compressed: CompactGreffeData
+  compressed: CompactGreffeData,
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
-  
+
   // Test all original entries work in compressed format
   for (const [code, expectedGreffe] of Object.entries(original)) {
     const compressedResult = findGreffeInCompressedData(code, compressed);
@@ -177,7 +177,7 @@ export function validateCompression(
   }
 
   // Test some non-existent codes return null
-  const testCodes = ['00000', '99999', '12345'];
+  const testCodes = ["00000", "99999", "12345"];
   for (const code of testCodes) {
     if (!original[code]) {
       const result = findGreffeInCompressedData(code, compressed);
@@ -189,6 +189,6 @@ export function validateCompression(
 
   return {
     valid: errors.length === 0,
-    errors: errors.slice(0, 10) // Limit error output
+    errors: errors.slice(0, 10), // Limit error output
   };
 }

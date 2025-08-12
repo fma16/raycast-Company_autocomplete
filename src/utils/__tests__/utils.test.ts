@@ -38,7 +38,7 @@ describe("utils", () => {
       const result1 = formatFrenchNumber("10000");
       expect(result1).toContain("10");
       expect(result1).toContain("000,00");
-      
+
       expect(formatFrenchNumber("999")).toBe("999,00");
     });
 
@@ -49,8 +49,8 @@ describe("utils", () => {
     });
 
     it("should return fallback for invalid input", () => {
-      expect(formatFrenchNumber("invalid")).toBe("[[à compléter]]");
-      expect(formatFrenchNumber("")).toBe("[[à compléter]]");
+      expect(formatFrenchNumber("invalid")).toBe("[[to be completed]]");
+      expect(formatFrenchNumber("")).toBe("[[to be completed]]");
     });
   });
 });

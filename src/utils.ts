@@ -2,20 +2,20 @@ import { AddressInfo } from "./types";
 import { environment } from "@raycast/api";
 import roleMappings from "../assets/role-mappings.json";
 
-const FALLBACK_VALUE = "[[à compléter]]";
+const FALLBACK_VALUE = "[[to be completed]]";
 
 // User-friendly fallback values for different contexts
 export const FALLBACK_VALUES = {
-  MISSING_DATA: "[[à compléter]]",
-  COMPANY_NAME: "[[Dénomination à compléter]]",
-  ADDRESS: "[[Adresse à compléter]]",
-  CAPITAL: "[[Montant à compléter]]",
-  RCS_CITY: "[[Ville du greffe à compléter]]",
-  REPRESENTATIVE_NAME: "[[Nom du représentant à compléter]]",
-  REPRESENTATIVE_ROLE: "[[Fonction à compléter]]",
-  BIRTH_DATE: "[[Date de naissance non renseignée]]",
-  BIRTH_PLACE: "[[Lieu de naissance non renseigné]]",
-  NATIONALITY: "[[Nationalité non renseignée]]",
+  MISSING_DATA: "[[to be completed]]",
+  COMPANY_NAME: "[[Company name to be completed]]",
+  ADDRESS: "[[Address to be completed]]",
+  CAPITAL: "[[Amount to be completed]]",
+  RCS_CITY: "[[Registry city to be completed]]",
+  REPRESENTATIVE_NAME: "[[Representative name to be completed]]",
+  REPRESENTATIVE_ROLE: "[[Position to be completed]]",
+  BIRTH_DATE: "[[Birth date not provided]]",
+  BIRTH_PLACE: "[[Birth place not provided]]",
+  NATIONALITY: "[[Nationality not provided]]",
 };
 
 // Mapping des codes de forme juridique INPI vers les libellés complets

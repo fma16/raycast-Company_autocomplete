@@ -9,6 +9,7 @@ import {
   getRoleName,
   FALLBACK_VALUES,
 } from "../utils";
+import { formatRepresentativeName, formatCityName } from "../utils/formatting";
 import { findGreffeByCodePostal } from "./greffe-lookup";
 
 /**
@@ -25,7 +26,7 @@ export function buildMarkdown(data: CompanyData): string {
     return buildPersonneMoraleMarkdown(data);
   }
 
-  return "Aucune information à afficher.";
+  return "No information to display.";
 }
 
 /**
@@ -84,7 +85,8 @@ export function buildPersonneMoraleMarkdown(data: CompanyData): string {
   const address = formatAddress(personneMorale.adresseEntreprise);
   const codePostal = personneMorale.adresseEntreprise?.adresse?.codePostal;
   const greffeFromData = codePostal ? findGreffeByCodePostal(codePostal) : null;
-  const rcsCity = formatField(greffeFromData || personneMorale.immatriculationRcs?.villeImmatriculation);
+  const rawRcsCity = greffeFromData || personneMorale.immatriculationRcs?.villeImmatriculation;
+  const rcsCity = rawRcsCity ? formatCityName(rawRcsCity) : FALLBACK_VALUES.RCS_CITY;
 
   // Build company header and details
   const title = `**La société ${denomination}**`;
@@ -138,7 +140,7 @@ export function extractRepresentativeInfo(composition: any): RepresentativeInfo 
     const roleB = b.roleEntreprise;
     const priorityA = rolePriority.indexOf(roleA);
     const priorityB = rolePriority.indexOf(roleB);
-    
+
     // Higher priority (lower index) comes first, unknown roles go to end
     if (priorityA === -1 && priorityB === -1) return 0;
     if (priorityA === -1) return 1;
@@ -151,13 +153,11 @@ export function extractRepresentativeInfo(composition: any): RepresentativeInfo 
   // Handle individual representative (person) - NEW API FORMAT
   if (pouvoir.individu?.descriptionPersonne) {
     const desc = pouvoir.individu.descriptionPersonne;
-    const prenoms = desc.prenoms?.join(" ") || "";
-    const nom = desc.nom || "";
-    const name = `${prenoms} ${nom}`.trim() || FALLBACK_VALUES.REPRESENTATIVE_NAME;
+    const name = formatRepresentativeName(desc.prenoms || [], desc.nom || "");
     const roleCode = pouvoir.roleEntreprise;
     const role = getRoleName(roleCode || "");
     // Genre may not be present in new format, default to null
-    const gender = desc.genre === "2" ? "F" : (desc.genre === "1" ? "M" : null);
+    const gender = desc.genre === "2" ? "F" : desc.genre === "1" ? "M" : null;
 
     return { name, role, gender };
   }
@@ -165,9 +165,7 @@ export function extractRepresentativeInfo(composition: any): RepresentativeInfo 
   // Handle individual representative (person) - OLD API FORMAT (fallback)
   if (pouvoir.personnePhysique?.identite?.descriptionPersonne) {
     const desc = pouvoir.personnePhysique.identite.descriptionPersonne;
-    const prenoms = desc.prenoms?.join(" ") || "";
-    const nom = desc.nom || "";
-    const name = `${prenoms} ${nom}`.trim() || FALLBACK_VALUES.REPRESENTATIVE_NAME;
+    const name = formatRepresentativeName(desc.prenoms || [], desc.nom || "");
     const roleCode = pouvoir.roleEntreprise;
     const role = getRoleName(roleCode || "");
     const gender = desc.genre === "2" ? "F" : "M";

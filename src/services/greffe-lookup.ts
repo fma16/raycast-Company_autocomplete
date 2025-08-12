@@ -38,7 +38,7 @@ if (!useCompressedFormat && greffeIndexData) {
 
 if (environment.isDevelopment) {
   const format = useCompressedFormat ? "compressed" : "legacy";
-  const size = useCompressedFormat 
+  const size = useCompressedFormat
     ? `${(greffeCompressedData as CompactGreffeData).metadata.compressedSize} entries`
     : `${legacyGreffeIndex ? Object.keys(legacyGreffeIndex).length : 0} entries`;
   console.log(`Greffe lookup using ${format} format (${size})`);

@@ -20,11 +20,11 @@ describe("markdown-builder", () => {
               denomination: "Test Company SARL",
               identite: {
                 entreprise: {
-                  denomination: "Test Company SARL"
+                  denomination: "Test Company SARL",
                 },
                 description: {
-                  montantCapital: "10000"
-                }
+                  montantCapital: "10000",
+                },
               },
               adresseEntreprise: {
                 adresse: {
@@ -32,44 +32,46 @@ describe("markdown-builder", () => {
                   numeroVoie: "123",
                   typeVoie: "rue",
                   libelleVoie: "de la Paix",
-                  commune: "Paris"
-                }
+                  commune: "Paris",
+                },
               },
               immatriculationRcs: {
-                villeImmatriculation: "PARIS"
+                villeImmatriculation: "PARIS",
               },
               composition: {
-                pouvoirs: [{
-                  personnePhysique: {
-                    identite: {
-                      descriptionPersonne: {
-                        nom: "Dupont",
-                        prenoms: ["Jean"],
-                        genre: "1"
-                      }
-                    }
+                pouvoirs: [
+                  {
+                    personnePhysique: {
+                      identite: {
+                        descriptionPersonne: {
+                          nom: "Dupont",
+                          prenoms: ["Jean"],
+                          genre: "1",
+                        },
+                      },
+                    },
+                    roleEntreprise: "5132",
                   },
-                  roleEntreprise: "5132"
-                }]
-              }
+                ],
+              },
             },
             natureCreation: {
               formeJuridique: "5499",
-              etablieEnFrance: true
-            }
-          }
+              etablieEnFrance: true,
+            },
+          },
         },
         updatedAt: "2023-01-01",
         nombreEtablissementsOuverts: 1,
-        nombreRepresentantsActifs: 1
+        nombreRepresentantsActifs: 1,
       } as CompanyData;
 
       const result = buildPersonneMoraleMarkdown(mockData);
-      
+
       expect(result).toContain("**La société Test Company SARL**");
-      expect(result).toContain("SARL au capital de 10 000,00 €");
-      expect(result).toContain("123 456 789");
-      expect(result).toContain("Jean Dupont");
+      expect(result).toContain("Société à responsabilité limitée (SARL) au capital de 10\u00A0000,00\u00A0€");
+      expect(result).toContain("123\u00A0456\u00A0789");
+      expect(result).toContain("Jean DUPONT");
     });
   });
 
@@ -88,9 +90,9 @@ describe("markdown-builder", () => {
                     genre: "2",
                     dateDeNaissance: "1980-01-15",
                     lieuDeNaissance: "Lyon",
-                    nationalite: "Française"
-                  }
-                }
+                    nationalite: "Française",
+                  },
+                },
               },
               adresseEntreprise: {
                 adresse: {
@@ -98,23 +100,23 @@ describe("markdown-builder", () => {
                   typeVoie: "avenue",
                   libelleVoie: "Victor Hugo",
                   codePostal: "69001",
-                  commune: "Lyon"
-                }
-              }
+                  commune: "Lyon",
+                },
+              },
             },
             natureCreation: {
-              etablieEnFrance: true
-            }
-          }
-        }
+              etablieEnFrance: true,
+            },
+          },
+        },
       } as CompanyData;
 
       const result = buildPersonnePhysiqueMarkdown(mockData);
-      
+
       expect(result).toContain("Madame Marie Martin");
       expect(result).toContain("Née(e) le 1980-01-15");
       expect(result).toContain("De nationalité Française");
-      expect(result).toContain("987 654 321");
+      expect(result).toContain("987\u00A0654\u00A0321");
     });
   });
 
@@ -128,11 +130,11 @@ describe("markdown-builder", () => {
                 descriptionPersonne: {
                   nom: "Directeur",
                   prenoms: ["Jean"],
-                  genre: "1"
-                }
-              }
+                  genre: "1",
+                },
+              },
             },
-            roleEntreprise: "5141" // Directeur général
+            roleEntreprise: "5141", // Directeur général
           },
           {
             personnePhysique: {
@@ -140,34 +142,36 @@ describe("markdown-builder", () => {
                 descriptionPersonne: {
                   nom: "President",
                   prenoms: ["Paul"],
-                  genre: "1"
-                }
-              }
+                  genre: "1",
+                },
+              },
             },
-            roleEntreprise: "5132" // Président (higher priority)
-          }
-        ]
+            roleEntreprise: "5132", // Président (higher priority)
+          },
+        ],
       };
 
       const result = extractRepresentativeInfo(composition);
-      
-      expect(result.name).toContain("Paul President");
+
+      expect(result.name).toContain("Paul PRESIDENT");
       expect(result.role).toBe("Président");
       expect(result.gender).toBe("M");
     });
 
     it("should handle corporate representative", () => {
       const composition = {
-        pouvoirs: [{
-          entreprise: {
-            denomination: "Holding Company"
+        pouvoirs: [
+          {
+            entreprise: {
+              denomination: "Holding Company",
+            },
+            roleEntreprise: "5131",
           },
-          roleEntreprise: "5131"
-        }]
+        ],
       };
 
       const result = extractRepresentativeInfo(composition);
-      
+
       expect(result.name).toBe("Holding Company");
       expect(result.isHolding).toBe(true);
       expect(result.gender).toBe(null);
@@ -178,7 +182,7 @@ describe("markdown-builder", () => {
     it("should convert markdown formatting to HTML", () => {
       const markdown = "**Bold text** and *italic text*\nSecond line";
       const result = markdownToHtml(markdown);
-      
+
       expect(result).toContain("<strong>Bold text</strong>");
       expect(result).toContain("<em>italic text</em>");
       expect(result).toContain("<p>");
@@ -189,7 +193,7 @@ describe("markdown-builder", () => {
     it("should remove markdown formatting", () => {
       const markdown = "**Bold text** and *italic text*";
       const result = markdownToPlainText(markdown);
-      
+
       expect(result).toBe("Bold text and italic text");
       expect(result).not.toContain("**");
       expect(result).not.toContain("*");
@@ -201,13 +205,15 @@ describe("markdown-builder", () => {
       const mockData = {
         formality: {
           content: {
-            personnePhysique: { /* minimal data */ }
-          }
-        }
+            personnePhysique: {
+              /* minimal data */
+            },
+          },
+        },
       } as CompanyData;
 
       const result = buildMarkdown(mockData);
-      
+
       expect(typeof result).toBe("string");
       expect(result.length).toBeGreaterThan(0);
     });
@@ -216,13 +222,18 @@ describe("markdown-builder", () => {
       const mockData = {
         formality: {
           content: {
-            personneMorale: { /* minimal data */ }
-          }
-        }
+            personneMorale: {
+              /* minimal data */
+            },
+            natureCreation: {
+              formeJuridique: "5599"
+            },
+          },
+        },
       } as CompanyData;
 
       const result = buildMarkdown(mockData);
-      
+
       expect(typeof result).toBe("string");
       expect(result.length).toBeGreaterThan(0);
     });
@@ -230,13 +241,13 @@ describe("markdown-builder", () => {
     it("should return fallback message for empty data", () => {
       const mockData = {
         formality: {
-          content: {}
-        }
+          content: {},
+        },
       } as CompanyData;
 
       const result = buildMarkdown(mockData);
-      
-      expect(result).toBe("Aucune information à afficher.");
+
+      expect(result).toBe("No information to display.");
     });
   });
 });

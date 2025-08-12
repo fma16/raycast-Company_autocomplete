@@ -72,7 +72,8 @@ function CompanyDetail({ siren }: { siren: string }) {
   }
 
   // Handle no data found
-  const hasNoData = !isLoading && data && !data.formality?.content?.personneMorale && !data.formality?.content?.personnePhysique;
+  const hasNoData =
+    !isLoading && data && !data.formality?.content?.personneMorale && !data.formality?.content?.personnePhysique;
   if (hasNoData) {
     return <ErrorView siren={siren} hasNoData={true} />;
   }
@@ -109,4 +110,3 @@ function logApiResponse(data: CompanyData) {
     });
   }
 }
-
