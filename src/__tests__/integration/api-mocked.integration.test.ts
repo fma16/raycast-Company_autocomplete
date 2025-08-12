@@ -3,7 +3,7 @@
  * Ces tests s'exécutent sur GitHub Actions sans nécessiter d'authentification
  */
 
-import { describe, it, expect, beforeAll } from "@jest/globals";
+import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
 import { inpiApiMock, shouldUseMock } from "../../services/inpi-api-mock";
 import { buildMarkdown } from "../../services/markdown-builder";
 import { validateCompanyDataStructure } from "../../services/api-validation";
@@ -200,15 +200,12 @@ describe("Mocked API Integration Tests (CI/CD)", () => {
     });
 
     it("should handle mocked errors properly", async () => {
-      // Tester avec un SIREN qui a une erreur dans le dataset (s'il y en a)
-      const errorResponse = inpiApiMock["dataset"].responses.find((r) => r.error);
+      // Tester les erreurs en essayant des SIREN invalides
+      const invalidSiren = "000000000";
 
-      if (errorResponse) {
-        await expect(inpiApiMock.getCompanyInfo(errorResponse.siren)).rejects.toThrow();
-      } else {
-        // Si pas d'erreurs mockées, ce test passe automatiquement
-        expect(true).toBe(true);
-      }
+      await expect(inpiApiMock.getCompanyInfo(invalidSiren)).rejects.toThrow(
+        `SIREN ${invalidSiren} not found in mocked dataset`,
+      );
     });
   });
 });

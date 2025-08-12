@@ -187,14 +187,14 @@ export const metrics = new MetricsCollector();
  * Decorator function to automatically track API call performance
  */
 export function trackApiCall(endpoint: string, method: string = "GET") {
-  return function <T extends (...args: Record<string, unknown>[]) => Promise<unknown>>(
+  return function <T extends (...args: unknown[]) => Promise<unknown>>(
     target: Record<string, unknown>,
     propertyName: string,
     descriptor: TypedPropertyDescriptor<T>,
   ) {
     const originalMethod = descriptor.value!;
 
-    descriptor.value = async function (...args: Record<string, unknown>[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const startTime = Date.now();
       let success = false;
       let statusCode = 0;
@@ -206,18 +206,22 @@ export function trackApiCall(endpoint: string, method: string = "GET") {
         success = true;
         statusCode = 200; // Assume success
         return result;
-      } catch (error: Record<string, unknown>) {
+      } catch (error: unknown) {
         success = false;
-        errorType = error.name || "UnknownError";
+        const errorObj = error as Record<string, unknown>;
+        errorType = (errorObj.name as string) || "UnknownError";
 
         // Extract status code from axios errors
-        if (error.response?.status) {
-          statusCode = error.response.status;
+        if (errorObj.response && typeof errorObj.response === "object" && errorObj.response !== null) {
+          const response = errorObj.response as { status?: number };
+          if (typeof response.status === "number") {
+            statusCode = response.status;
+          }
         }
 
         // Count retries if available
-        if (error.retryCount !== undefined) {
-          retryCount = error.retryCount;
+        if (typeof errorObj.retryCount === "number") {
+          retryCount = errorObj.retryCount;
         }
 
         throw error;

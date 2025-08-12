@@ -137,8 +137,8 @@ export async function createINPIApiService(): Promise<{ getCompanyInfo: (siren: 
     return inpiApiMock;
   } else {
     // Import dynamique pour éviter les dépendances en mode mock
-    const { login, getCompanyInfo } = await import("./inpi-api");
+    const { getCompanyInfo } = await import("./inpi-api");
     console.log("🌐 Using real INPI API service");
-    return { login, getCompanyInfo };
+    return { getCompanyInfo };
   }
 }

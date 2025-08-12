@@ -312,7 +312,7 @@ function extractFieldPaths(obj: ApiObject, prefix: string = ""): string[] {
     paths.push(fullPath);
 
     if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
-      paths.push(...extractFieldPaths(obj[key], fullPath));
+      paths.push(...extractFieldPaths(obj[key] as ApiObject, fullPath));
     }
   });
 
@@ -374,7 +374,7 @@ function extractFieldTypes(obj: ApiObject, prefix: string = ""): Record<string, 
     }
 
     if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-      Object.assign(types, extractFieldTypes(value, fullPath));
+      Object.assign(types, extractFieldTypes(value as ApiObject, fullPath));
     }
   });
 

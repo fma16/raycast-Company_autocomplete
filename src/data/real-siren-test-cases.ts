@@ -146,20 +146,26 @@ export const REAL_SIREN_TEST_CASES: RealSirenTestCase[] = [
  * Fonction utilitaire pour accéder aux propriétés imbriquées
  */
 export function getNestedProperty(obj: Record<string, unknown> | null | undefined, path: string): unknown {
-  return path.split(".").reduce((current, key) => {
-    return current && current[key] !== undefined ? current[key] : undefined;
-  }, obj);
+  return path.split(".").reduce((current: unknown, key) => {
+    if (current && typeof current === "object" && current !== null && key in current) {
+      return (current as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, obj as unknown);
 }
 
 /**
  * Validation des structures de données selon le type d'entité
  */
 export function validateEntityStructure(data: Record<string, unknown>, testCase: RealSirenTestCase): boolean {
-  if (!data?.formality?.content) return false;
+  const formality = data?.formality as Record<string, unknown> | undefined;
+  const content = formality?.content as Record<string, unknown> | undefined;
+
+  if (!formality || !content) return false;
 
   // Vérification du type d'entité
-  const hasPersonneMorale = !!data.formality.content.personneMorale;
-  const hasPersonnePhysique = !!data.formality.content.personnePhysique;
+  const hasPersonneMorale = !!content.personneMorale;
+  const hasPersonnePhysique = !!content.personnePhysique;
 
   if (testCase.type === "personneMorale" && !hasPersonneMorale) return false;
   if (testCase.type === "personnePhysique" && !hasPersonnePhysique) return false;
