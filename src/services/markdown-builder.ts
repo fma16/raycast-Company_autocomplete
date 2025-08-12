@@ -1,4 +1,4 @@
-import { CompanyData, RepresentativeInfo } from "../types";
+import { CompanyData, RepresentativeInfo, PersonDescription } from "../types";
 import {
   formatAddress,
   formatField,
@@ -95,7 +95,7 @@ Immatriculée au RCS de ${rcsCity} sous le n° ${sirenFormatted}
 Dont le siège social est situé ${address}`;
 
   // Extract representative information
-  const representative = extractRepresentativeInfo(personneMorale.composition);
+  const representative = extractRepresentativeInfo(personneMorale.composition || {});
 
   let representativeLine: string;
   if (representative.isHolding) {
@@ -128,16 +128,16 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
     isHolding: false,
   };
 
-  const pouvoirs = composition?.pouvoirs || [];
-  if (pouvoirs.length === 0) return fallback;
+  const pouvoirs = (composition?.pouvoirs as Record<string, unknown>[]) || [];
+  if (!Array.isArray(pouvoirs) || pouvoirs.length === 0) return fallback;
 
   // Define role priority (highest to lowest priority)
   const rolePriority = ["5132", "5131", "5141"]; // Président, Gérant, Directeur général
 
   // Sort representatives by role priority
   const sortedPouvoirs = pouvoirs.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
-    const roleA = a.roleEntreprise;
-    const roleB = b.roleEntreprise;
+    const roleA = a.roleEntreprise as string;
+    const roleB = b.roleEntreprise as string;
     const priorityA = rolePriority.indexOf(roleA);
     const priorityB = rolePriority.indexOf(roleB);
 
@@ -151,10 +151,11 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
   const pouvoir = sortedPouvoirs[0];
 
   // Handle individual representative (person) - NEW API FORMAT
-  if (pouvoir.individu?.descriptionPersonne) {
-    const desc = pouvoir.individu.descriptionPersonne;
+  const individu = pouvoir.individu as { descriptionPersonne?: PersonDescription };
+  if (individu?.descriptionPersonne) {
+    const desc = individu.descriptionPersonne;
     const name = formatRepresentativeName(desc.prenoms || [], desc.nom || "");
-    const roleCode = pouvoir.roleEntreprise;
+    const roleCode = pouvoir.roleEntreprise as string;
     const role = getRoleName(roleCode || "");
     // Genre may not be present in new format, default to null
     const gender = desc.genre === "2" ? "F" : desc.genre === "1" ? "M" : null;
@@ -163,10 +164,11 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
   }
 
   // Handle individual representative (person) - OLD API FORMAT (fallback)
-  if (pouvoir.personnePhysique?.identite?.descriptionPersonne) {
-    const desc = pouvoir.personnePhysique.identite.descriptionPersonne;
+  const personnePhysique = pouvoir.personnePhysique as { identite?: { descriptionPersonne?: PersonDescription } };
+  if (personnePhysique?.identite?.descriptionPersonne) {
+    const desc = personnePhysique.identite.descriptionPersonne;
     const name = formatRepresentativeName(desc.prenoms || [], desc.nom || "");
-    const roleCode = pouvoir.roleEntreprise;
+    const roleCode = pouvoir.roleEntreprise as string;
     const role = getRoleName(roleCode || "");
     const gender = desc.genre === "2" ? "F" : "M";
 
@@ -174,10 +176,10 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
   }
 
   // Handle corporate representative (company)
-  if (pouvoir.entreprise?.denomination) {
-    const entreprise = pouvoir.entreprise;
+  const entreprise = pouvoir.entreprise as { denomination?: string };
+  if (entreprise?.denomination) {
     const name = entreprise.denomination || FALLBACK_VALUES.REPRESENTATIVE_NAME;
-    const roleCode = pouvoir.roleEntreprise;
+    const roleCode = pouvoir.roleEntreprise as string;
     const role = getRoleName(roleCode || "");
 
     return { name, role, gender: null, isHolding: true };

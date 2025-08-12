@@ -96,13 +96,11 @@ describe("Address Formatter Service", () => {
       expect(
         formatAddress(
           null as unknown as {
-            adresse?: {
-              numeroVoie?: string;
-              typeVoie?: string;
-              libelleVoie?: string;
-              codePostal?: string;
-              commune?: string;
-            };
+            numeroVoie?: string;
+            typeVoie?: string;
+            libelleVoie?: string;
+            codePostal?: string;
+            commune?: string;
           },
         ),
       ).toBe("");

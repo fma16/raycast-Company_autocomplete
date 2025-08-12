@@ -160,7 +160,7 @@ export function formatAddress(address: AddressInfo): string {
 
   // Add street name
   if (addr.voie || addr.libelleVoie) {
-    const streetName = toTitleCase(addr.voie || addr.libelleVoie);
+    const streetName = toTitleCase(addr.voie || addr.libelleVoie || "");
     streetParts.push(streetName);
   }
 

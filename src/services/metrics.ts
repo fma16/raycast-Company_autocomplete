@@ -188,13 +188,13 @@ export const metrics = new MetricsCollector();
  */
 export function trackApiCall(endpoint: string, method: string = "GET") {
   return function <T extends (...args: unknown[]) => Promise<unknown>>(
-    target: Record<string, unknown>,
-    propertyName: string,
+    _target: Record<string, unknown>,
+    _propertyName: string,
     descriptor: TypedPropertyDescriptor<T>,
   ) {
     const originalMethod = descriptor.value!;
 
-    descriptor.value = async function (...args: unknown[]) {
+    descriptor.value = async function (this: unknown, ...args: unknown[]) {
       const startTime = Date.now();
       let success = false;
       let statusCode = 0;

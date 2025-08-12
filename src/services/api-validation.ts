@@ -25,11 +25,9 @@ export interface ApiChangeDetection {
 }
 
 /**
- * Expected structure for INPI API responses
+ * Expected structure for INPI API responses (kept for reference, not used at runtime)
  */
-// Expected structure for INPI API responses - commented out as reference
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _EXPECTED_STRUCTURE = {
+/* const EXPECTED_STRUCTURE = {
   formality: {
     required: true,
     type: "object",
@@ -42,7 +40,7 @@ const _EXPECTED_STRUCTURE = {
       },
     },
   },
-};
+}; */
 
 /**
  * Validates INPI API response structure
@@ -131,11 +129,11 @@ function validateContentStructure(content: ApiObject, result: ValidationResult):
   }
 
   if (hasPersonneMorale) {
-    validatePersonneMoraleStructure(content.personneMorale, result);
+    validatePersonneMoraleStructure(content.personneMorale as ApiObject, result);
   }
 
   if (hasPersonnePhysique) {
-    validatePersonnePhysiqueStructure(content.personnePhysique, result);
+    validatePersonnePhysiqueStructure(content.personnePhysique as ApiObject, result);
   }
 }
 
@@ -159,12 +157,12 @@ function validatePersonneMoraleStructure(personneMorale: ApiObject, result: Vali
 
   // Validate address structure if present
   if (personneMorale.adresseEntreprise) {
-    validateAddressStructure(personneMorale.adresseEntreprise, "personneMorale.adresseEntreprise", result);
+    validateAddressStructure(personneMorale.adresseEntreprise as ApiObject, "personneMorale.adresseEntreprise", result);
   }
 
   // Validate composition for representatives
   if (personneMorale.composition) {
-    validateCompositionStructure(personneMorale.composition, result);
+    validateCompositionStructure(personneMorale.composition as ApiObject, result);
   }
 }
 
@@ -179,8 +177,10 @@ function validatePersonnePhysiqueStructure(personnePhysique: ApiObject, result: 
 
   // Check for identité structure
   if (personnePhysique.identite) {
-    if (personnePhysique.identite.entrepreneur) {
-      const desc = personnePhysique.identite.entrepreneur.descriptionPersonne;
+    const identite = personnePhysique.identite as ApiObject;
+    if (identite.entrepreneur) {
+      const entrepreneur = identite.entrepreneur as ApiObject;
+      const desc = entrepreneur.descriptionPersonne;
       if (!desc) {
         result.warnings.push("Missing entrepreneur description");
       }
@@ -198,7 +198,7 @@ function validateAddressStructure(address: ApiObject, path: string, result: Vali
   }
 
   if (address.adresse) {
-    const addr = address.adresse;
+    const addr = address.adresse as ApiObject;
     const expectedAddressFields = ["codePostal", "commune"];
 
     expectedAddressFields.forEach((field) => {
@@ -240,8 +240,12 @@ function validatePouvoirStructure(pouvoir: ApiObject, index: number, result: Val
   }
 
   // Check for either new or old API format
-  const hasNewFormat = pouvoir.individu?.descriptionPersonne;
-  const hasOldFormat = pouvoir.personnePhysique?.identite?.descriptionPersonne;
+  const individu = pouvoir.individu as ApiObject;
+  const personnePhysique = pouvoir.personnePhysique as ApiObject;
+  const hasNewFormat = individu?.descriptionPersonne;
+  const hasOldFormat = personnePhysique?.identite
+    ? (personnePhysique.identite as ApiObject)?.descriptionPersonne
+    : false;
   const hasEntreprise = pouvoir.entreprise;
 
   if (!hasNewFormat && !hasOldFormat && !hasEntreprise) {
@@ -324,13 +328,13 @@ function extractFieldPaths(obj: ApiObject, prefix: string = ""): string[] {
  */
 function getFieldType(obj: ApiObject, path: string): string {
   const parts = path.split(".");
-  let current = obj;
+  let current: unknown = obj;
 
   for (const part of parts) {
     if (!current || typeof current !== "object") {
       return "undefined";
     }
-    current = current[part];
+    current = (current as ApiObject)[part];
   }
 
   if (current === null) return "null";
@@ -345,8 +349,8 @@ export function createApiBaseline(response: CompanyData): ApiObject {
   // Create a simplified structure for comparison
   return {
     timestamp: Date.now(),
-    structure: extractFieldPaths(response),
-    types: extractFieldTypes(response),
+    structure: extractFieldPaths(response as unknown as ApiObject),
+    types: extractFieldTypes(response as unknown as ApiObject),
     version: "1.0",
   };
 }

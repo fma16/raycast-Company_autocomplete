@@ -13,9 +13,12 @@ describe("markdown-builder", () => {
   describe("buildPersonneMoraleMarkdown", () => {
     it("should format corporate entity with complete data", () => {
       const mockData: CompanyData = {
+        id: "test-id-123",
         formality: {
           siren: "123456789",
           content: {
+            succursaleOuFiliale: "AVEC_ETABLISSEMENT",
+            formeExerciceActivitePrincipale: "COMMERCIALE",
             personneMorale: {
               denomination: "Test Company SARL",
               identite: {
@@ -23,7 +26,7 @@ describe("markdown-builder", () => {
                   denomination: "Test Company SARL",
                 },
                 description: {
-                  montantCapital: "10000",
+                  montantCapital: 10000,
                 },
               },
               adresseEntreprise: {
@@ -37,17 +40,16 @@ describe("markdown-builder", () => {
               },
               immatriculationRcs: {
                 villeImmatriculation: "PARIS",
+                numeroRcs: "123456789",
               },
               composition: {
                 pouvoirs: [
                   {
-                    personnePhysique: {
-                      identite: {
-                        descriptionPersonne: {
-                          nom: "Dupont",
-                          prenoms: ["Jean"],
-                          genre: "1",
-                        },
+                    individu: {
+                      descriptionPersonne: {
+                        nom: "Dupont",
+                        prenoms: ["Jean"],
+                        genre: "1",
                       },
                     },
                     roleEntreprise: "5132",
@@ -56,15 +58,21 @@ describe("markdown-builder", () => {
               },
             },
             natureCreation: {
+              dateCreation: "2020-01-01",
+              societeEtrangere: false,
               formeJuridique: "5499",
+              formeJuridiqueInsee: "5499",
               etablieEnFrance: true,
+              salarieEnFrance: false,
+              relieeEntrepriseAgricole: false,
+              entrepriseAgricole: false,
             },
           },
         },
         updatedAt: "2023-01-01",
         nombreEtablissementsOuverts: 1,
         nombreRepresentantsActifs: 1,
-      } as CompanyData;
+      };
 
       const result = buildPersonneMoraleMarkdown(mockData);
 
@@ -78,9 +86,15 @@ describe("markdown-builder", () => {
   describe("buildPersonnePhysiqueMarkdown", () => {
     it("should format individual entrepreneur with complete data", () => {
       const mockData: CompanyData = {
+        id: "test-id-456",
+        updatedAt: "2025-08-12T12:00:00+02:00",
+        nombreRepresentantsActifs: 1,
+        nombreEtablissementsOuverts: 1,
         formality: {
           siren: "987654321",
           content: {
+            succursaleOuFiliale: "SANS_ETABLISSEMENT",
+            formeExerciceActivitePrincipale: "COMMERCIALE",
             personnePhysique: {
               identite: {
                 entrepreneur: {
