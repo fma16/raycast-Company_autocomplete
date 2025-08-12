@@ -40,7 +40,7 @@ export function formatAddress(address: {
   libelleVoie?: string;
   codePostal?: string;
   commune?: string;
-  [key: string]: any;
+  [key: string]: string | undefined;
 }): string {
   if (!address) return "";
 
@@ -89,7 +89,7 @@ function formatStreetName(streetName: string): string {
   return streetName
     .toLowerCase()
     .split(/\s+/)
-    .map((word, _index) => {
+    .map((word) => {
       // Handle French articles and prepositions that should stay lowercase
       const lowercaseWords = ["de", "du", "des", "le", "la", "les", "et", "à", "au", "aux", "en", "sur", "sous"];
       if (lowercaseWords.includes(word)) {

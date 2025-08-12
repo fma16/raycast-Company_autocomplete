@@ -29,8 +29,8 @@ describe("Address Formatter Service", () => {
     });
 
     test("should handle null/undefined inputs", () => {
-      expect(expandStreetType(null as any)).toBe("");
-      expect(expandStreetType(undefined as any)).toBe("");
+      expect(expandStreetType(null as unknown as string)).toBe("");
+      expect(expandStreetType(undefined as unknown as string)).toBe("");
     });
 
     test("should handle complex abbreviations", () => {
@@ -93,7 +93,19 @@ describe("Address Formatter Service", () => {
 
     test("should handle empty address", () => {
       expect(formatAddress({})).toBe("");
-      expect(formatAddress(null as any)).toBe("");
+      expect(
+        formatAddress(
+          null as unknown as {
+            adresse?: {
+              numeroVoie?: string;
+              typeVoie?: string;
+              libelleVoie?: string;
+              codePostal?: string;
+              commune?: string;
+            };
+          },
+        ),
+      ).toBe("");
     });
 
     test("should handle unknown street type", () => {
@@ -134,7 +146,7 @@ describe("Address Formatter Service", () => {
     test("should reject unknown abbreviations", () => {
       expect(isValidAddressType("UNKNOWN")).toBe(false);
       expect(isValidAddressType("")).toBe(false);
-      expect(isValidAddressType(null as any)).toBe(false);
+      expect(isValidAddressType(null as unknown as string)).toBe(false);
     });
   });
 

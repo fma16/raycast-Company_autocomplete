@@ -5,10 +5,12 @@ import { findGreffeInCompressedData, type CompactGreffeData } from "./greffe-com
 import greffeCompressedData from "../../assets/greffes-index-compressed.json";
 
 // Fallback to old format if compressed data not available
-let greffeIndexData: any = null;
+let greffeIndexData: GreffeIndex | null = null;
 try {
+  // Note: Using require for dynamic JSON import fallback
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   greffeIndexData = require("../../assets/greffes-index.json");
-} catch (error) {
+} catch {
   // Old format not available - compressed-only mode
 }
 

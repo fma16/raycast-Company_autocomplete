@@ -187,14 +187,14 @@ export const metrics = new MetricsCollector();
  * Decorator function to automatically track API call performance
  */
 export function trackApiCall(endpoint: string, method: string = "GET") {
-  return function <T extends (...args: any[]) => Promise<any>>(
-    target: any,
+  return function <T extends (...args: Record<string, unknown>[]) => Promise<unknown>>(
+    target: Record<string, unknown>,
     propertyName: string,
     descriptor: TypedPropertyDescriptor<T>,
   ) {
     const originalMethod = descriptor.value!;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: Record<string, unknown>[]) {
       const startTime = Date.now();
       let success = false;
       let statusCode = 0;
@@ -206,7 +206,7 @@ export function trackApiCall(endpoint: string, method: string = "GET") {
         success = true;
         statusCode = 200; // Assume success
         return result;
-      } catch (error: any) {
+      } catch (error: Record<string, unknown>) {
         success = false;
         errorType = error.name || "UnknownError";
 

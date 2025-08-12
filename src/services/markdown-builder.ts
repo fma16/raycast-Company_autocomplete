@@ -120,7 +120,7 @@ ${representativeLine}
  * Extracts the most relevant representative information from the composition data.
  * Returns the highest-priority representative based on role hierarchy.
  */
-export function extractRepresentativeInfo(composition: any): RepresentativeInfo {
+export function extractRepresentativeInfo(composition: Record<string, unknown>): RepresentativeInfo {
   const fallback = {
     name: FALLBACK_VALUES.REPRESENTATIVE_NAME,
     role: FALLBACK_VALUES.REPRESENTATIVE_ROLE,
@@ -135,7 +135,7 @@ export function extractRepresentativeInfo(composition: any): RepresentativeInfo 
   const rolePriority = ["5132", "5131", "5141"]; // Président, Gérant, Directeur général
 
   // Sort representatives by role priority
-  const sortedPouvoirs = pouvoirs.sort((a: any, b: any) => {
+  const sortedPouvoirs = pouvoirs.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
     const roleA = a.roleEntreprise;
     const roleB = b.roleEntreprise;
     const priorityA = rolePriority.indexOf(roleA);

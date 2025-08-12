@@ -7,7 +7,7 @@ export function validateAndExtractSiren(input: string): string | null {
   if (!input) return null;
 
   // Clean the input - remove spaces, hyphens, and other separators
-  const cleaned = input.replace(/[\s\-\.]/g, "");
+  const cleaned = input.replace(/[\s\-.]/g, "");
 
   // Check if it's all digits
   if (!/^\d+$/.test(cleaned)) {
@@ -33,7 +33,7 @@ export function formatSiren(siren: string): string {
   if (!siren) return FALLBACK_VALUE;
 
   // Clean the input first
-  const cleaned = siren.replace(/[\s\-\.]/g, "");
+  const cleaned = siren.replace(/[\s\-.]/g, "");
 
   if (cleaned.length !== 9) {
     return siren; // Return as-is if not valid format
@@ -79,7 +79,7 @@ export function toTitleCase(str: string): string {
   return str
     .toLowerCase()
     .split(/\s+/)
-    .map((word, index) => {
+    .map((word) => {
       // Handle French articles and prepositions that should stay lowercase
       const lowercaseWords = ["de", "du", "des", "le", "la", "les", "et", "à", "au", "aux", "en", "sur", "sous"];
       if (lowercaseWords.includes(word)) {
@@ -118,14 +118,14 @@ export function formatCityName(cityName: string): string {
   // Handle both spaces and hyphens correctly
   return cityName
     .toLowerCase()
-    .replace(/[\s\-]+/g, (match) => {
+    .replace(/[\s-]+/g, (match) => {
       // Preserve the original separator (space or hyphen)
       return match.includes("-") ? "-" : " ";
     })
-    .split(/(\s+|\-+)/) // Split while preserving separators
+    .split(/(\s+|-+)/) // Split while preserving separators
     .map((part) => {
       // If it's a separator, return as-is
-      if (/^[\s\-]+$/.test(part)) return part;
+      if (/^[\s-]+$/.test(part)) return part;
 
       // Exceptions pour particules françaises
       const exceptions = ["de", "du", "des", "le", "la", "les", "sur", "sous", "en"];

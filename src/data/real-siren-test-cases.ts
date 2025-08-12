@@ -145,7 +145,7 @@ export const REAL_SIREN_TEST_CASES: RealSirenTestCase[] = [
 /**
  * Fonction utilitaire pour accéder aux propriétés imbriquées
  */
-export function getNestedProperty(obj: any, path: string): any {
+export function getNestedProperty(obj: Record<string, unknown> | null | undefined, path: string): unknown {
   return path.split(".").reduce((current, key) => {
     return current && current[key] !== undefined ? current[key] : undefined;
   }, obj);
@@ -154,7 +154,7 @@ export function getNestedProperty(obj: any, path: string): any {
 /**
  * Validation des structures de données selon le type d'entité
  */
-export function validateEntityStructure(data: any, testCase: RealSirenTestCase): boolean {
+export function validateEntityStructure(data: Record<string, unknown>, testCase: RealSirenTestCase): boolean {
   if (!data?.formality?.content) return false;
 
   // Vérification du type d'entité

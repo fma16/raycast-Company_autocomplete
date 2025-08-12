@@ -5,6 +5,9 @@
 
 import { CompanyData } from "../types";
 
+// Utility types for validation functions
+type ApiObject = Record<string, unknown>;
+
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
@@ -24,7 +27,9 @@ export interface ApiChangeDetection {
 /**
  * Expected structure for INPI API responses
  */
-const EXPECTED_STRUCTURE = {
+// Expected structure for INPI API responses - commented out as reference
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _EXPECTED_STRUCTURE = {
   formality: {
     required: true,
     type: "object",
@@ -42,7 +47,7 @@ const EXPECTED_STRUCTURE = {
 /**
  * Validates INPI API response structure
  */
-export function validateCompanyDataStructure(data: any): ValidationResult {
+export function validateCompanyDataStructure(data: CompanyData): ValidationResult {
   const result: ValidationResult = {
     valid: true,
     errors: [],
@@ -72,7 +77,7 @@ export function validateCompanyDataStructure(data: any): ValidationResult {
 /**
  * Validates the formality section structure
  */
-function validateFormalityStructure(formality: any, result: ValidationResult): void {
+function validateFormalityStructure(formality: CompanyData["formality"], result: ValidationResult): void {
   if (!formality || typeof formality !== "object") {
     result.valid = false;
     result.errors.push("formality is not an object");
@@ -104,7 +109,7 @@ function validateFormalityStructure(formality: any, result: ValidationResult): v
 /**
  * Validates the content section structure
  */
-function validateContentStructure(content: any, result: ValidationResult): void {
+function validateContentStructure(content: ApiObject, result: ValidationResult): void {
   if (!content || typeof content !== "object") {
     result.valid = false;
     result.errors.push("formality.content is not an object");
@@ -137,7 +142,7 @@ function validateContentStructure(content: any, result: ValidationResult): void 
 /**
  * Validates PersonneMorale structure
  */
-function validatePersonneMoraleStructure(personneMorale: any, result: ValidationResult): void {
+function validatePersonneMoraleStructure(personneMorale: ApiObject, result: ValidationResult): void {
   if (!personneMorale || typeof personneMorale !== "object") {
     result.errors.push("personneMorale is not an object");
     return;
@@ -166,7 +171,7 @@ function validatePersonneMoraleStructure(personneMorale: any, result: Validation
 /**
  * Validates PersonnePhysique structure
  */
-function validatePersonnePhysiqueStructure(personnePhysique: any, result: ValidationResult): void {
+function validatePersonnePhysiqueStructure(personnePhysique: ApiObject, result: ValidationResult): void {
   if (!personnePhysique || typeof personnePhysique !== "object") {
     result.errors.push("personnePhysique is not an object");
     return;
@@ -186,7 +191,7 @@ function validatePersonnePhysiqueStructure(personnePhysique: any, result: Valida
 /**
  * Validates address structure
  */
-function validateAddressStructure(address: any, path: string, result: ValidationResult): void {
+function validateAddressStructure(address: ApiObject, path: string, result: ValidationResult): void {
   if (!address || typeof address !== "object") {
     result.warnings.push(`${path} is not an object`);
     return;
@@ -207,7 +212,7 @@ function validateAddressStructure(address: any, path: string, result: Validation
 /**
  * Validates composition structure for representatives
  */
-function validateCompositionStructure(composition: any, result: ValidationResult): void {
+function validateCompositionStructure(composition: ApiObject, result: ValidationResult): void {
   if (!composition || typeof composition !== "object") {
     result.warnings.push("composition is not an object");
     return;
@@ -219,7 +224,7 @@ function validateCompositionStructure(composition: any, result: ValidationResult
       return;
     }
 
-    composition.pouvoirs.forEach((pouvoir: any, index: number) => {
+    composition.pouvoirs.forEach((pouvoir: ApiObject, index: number) => {
       validatePouvoirStructure(pouvoir, index, result);
     });
   }
@@ -228,7 +233,7 @@ function validateCompositionStructure(composition: any, result: ValidationResult
 /**
  * Validates individual pouvoir (representative) structure
  */
-function validatePouvoirStructure(pouvoir: any, index: number, result: ValidationResult): void {
+function validatePouvoirStructure(pouvoir: ApiObject, index: number, result: ValidationResult): void {
   if (!pouvoir || typeof pouvoir !== "object") {
     result.warnings.push(`pouvoir[${index}] is not an object`);
     return;
@@ -252,7 +257,7 @@ function validatePouvoirStructure(pouvoir: any, index: number, result: Validatio
 /**
  * Detects changes in API structure compared to baseline
  */
-export function detectApiChanges(currentResponse: any, baselineResponse: any): ApiChangeDetection {
+export function detectApiChanges(currentResponse: ApiObject, baselineResponse: ApiObject): ApiChangeDetection {
   const currentFields = extractFieldPaths(currentResponse);
   const baselineFields = extractFieldPaths(baselineResponse);
 
@@ -295,7 +300,7 @@ export function detectApiChanges(currentResponse: any, baselineResponse: any): A
 /**
  * Extracts all field paths from an object
  */
-function extractFieldPaths(obj: any, prefix: string = ""): string[] {
+function extractFieldPaths(obj: ApiObject, prefix: string = ""): string[] {
   const paths: string[] = [];
 
   if (!obj || typeof obj !== "object") {
@@ -317,7 +322,7 @@ function extractFieldPaths(obj: any, prefix: string = ""): string[] {
 /**
  * Gets the type of a field at a specific path
  */
-function getFieldType(obj: any, path: string): string {
+function getFieldType(obj: ApiObject, path: string): string {
   const parts = path.split(".");
   let current = obj;
 
@@ -336,7 +341,7 @@ function getFieldType(obj: any, path: string): string {
 /**
  * Creates a baseline from a valid API response for future comparisons
  */
-export function createApiBaseline(response: CompanyData): any {
+export function createApiBaseline(response: CompanyData): ApiObject {
   // Create a simplified structure for comparison
   return {
     timestamp: Date.now(),
@@ -349,7 +354,7 @@ export function createApiBaseline(response: CompanyData): any {
 /**
  * Extracts field types for baseline comparison
  */
-function extractFieldTypes(obj: any, prefix: string = ""): Record<string, string> {
+function extractFieldTypes(obj: ApiObject, prefix: string = ""): Record<string, string> {
   const types: Record<string, string> = {};
 
   if (!obj || typeof obj !== "object") {

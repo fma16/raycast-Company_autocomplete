@@ -131,7 +131,7 @@ export function shouldUseMock(): boolean {
 /**
  * Fonction factory qui retourne le bon service selon le contexte
  */
-export async function createINPIApiService(): Promise<any> {
+export async function createINPIApiService(): Promise<{ getCompanyInfo: (siren: string) => Promise<CompanyData> }> {
   if (shouldUseMock()) {
     console.log("🎭 Using mocked INPI API service");
     return inpiApiMock;
