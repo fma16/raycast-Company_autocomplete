@@ -27,7 +27,7 @@ jobs:
         run: npm ci
 
       - name: Run unit tests
-        run: npm test -- --testPathPattern="(utils|services)/__tests__" --testPathIgnorePatterns="integration" --coverage=false --silent
+        run: npm run test:unit
 
       - name: Check TypeScript
         run: npx tsc --noEmit
@@ -63,7 +63,7 @@ jobs:
           echo "✅ Mocked dataset found"
 
       - name: Run mocked integration tests
-        run: npm test -- --testPathPattern="api-mocked.integration.test.ts" --testTimeout=10000
+        run: npm run test:integration
         env:
           FORCE_MOCK: 'true'
 
@@ -88,7 +88,7 @@ jobs:
         run: npm ci
 
       - name: Run performance tests
-        run: npm test -- --testPathPattern="performance.test.ts" --testTimeout=10000
+        run: npm run test:performance
 
   # Full test suite - run on releases only
   test-full:
@@ -111,7 +111,7 @@ jobs:
         run: npm ci
 
       - name: Run all tests with coverage (mocked data only)
-        run: npm test -- --coverage --coverageDirectory=coverage --coverageReporters=lcov,text-summary
+        run: npm run test:full
         env:
           FORCE_MOCK: 'true'
           NODE_ENV: 'test'
