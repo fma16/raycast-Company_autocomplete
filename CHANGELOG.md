@@ -5,7 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - {PR_MERGE_DATE}
+## [1.1.1] - {PR_MERGE_DATE}
+
+### Fixed
+- **🔄 Recursive Representative Search**: Repaired functionality for companies with holding company representatives
+- **👑 Role Priority**: President (role 73) now correctly prioritized over General Director (role 53) for SAS companies
+- **🎯 SIREN Extraction**: Fixed extraction of correct SIREN from corporate representative data for API calls
+- **📝 Output Formatting**: Corrected cascading representation format: "Représentée par la société [HOLDING] en tant que [ROLE], elle-même représentée par [PERSON] en tant que [ROLE], dûment [habilité/habilitée]"
+- **⚡ Async Operations**: Made markdown generation functions properly async to support API calls
+- **🔄 Loading States**: Added proper loading indicators for recursive search operations
+
+### Changed
+- **📊 Component Updates**: CompanyDetailsView now handles async markdown generation with usePromise
+- **🏗️ Architecture**: Added dedicated recursive-representative-search.ts module for holding company resolution
+- **📋 Type Safety**: Extended RepresentativeInfo interface with corporateSiren field for recursive operations
+
+## [1.1.0] - 2025-08-13
 
 ### Added
 - **🏗️ Streamlined Folder Architecture**: Complete architectural overhaul with unified business logic in `src/lib/` directory
