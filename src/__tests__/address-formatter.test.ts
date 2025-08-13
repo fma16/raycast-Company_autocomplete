@@ -2,7 +2,7 @@
  * Tests pour le service de formatage d'adresses français
  */
 
-import { expandStreetType, formatAddress, isValidAddressType, getAddressTypeMappings } from "../address-formatter";
+import { expandStreetType, formatAddress, isValidAddressType, getAddressTypeMappings } from "../lib/address-formatter";
 
 describe("Address Formatter Service", () => {
   describe("expandStreetType", () => {

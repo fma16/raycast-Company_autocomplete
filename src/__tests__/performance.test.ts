@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect } from "@jest/globals";
-import { findGreffeByCodePostal } from "../services/greffe-lookup";
-import { compressGreffeData, decompressGreffeData } from "../services/greffe-compressor";
-import { formatAddress } from "../utils";
-import { expandStreetType } from "../services/address-formatter";
+import { findGreffeByCodePostal } from "../lib/greffe-lookup";
+import { compressGreffeData, decompressGreffeData } from "../lib/greffe-compressor";
+import { formatAddress } from "../lib/utils";
+import { expandStreetType } from "../lib/address-formatter";
 import { AddressInfo } from "../types";
 
 describe("Performance Tests", () => {

@@ -4,10 +4,10 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
-import { inpiApiMock, shouldUseMock } from "../../services/inpi-api-mock";
-import { buildMarkdown } from "../../services/markdown-builder";
-import { validateCompanyDataStructure } from "../../services/api-validation";
-import { REAL_SIREN_TEST_CASES } from "../../data/real-siren-test-cases";
+import { inpiApiMock, shouldUseMock } from "../../lib/inpi-api-mock";
+import { buildMarkdown } from "../../lib/markdown-builder";
+import { validateCompanyDataStructure } from "../../lib/api-validation";
+import { REAL_SIREN_TEST_CASES } from "../../lib/real-siren-test-cases";
 
 describe("Mocked API Integration Tests (CI/CD)", () => {
   beforeAll(() => {

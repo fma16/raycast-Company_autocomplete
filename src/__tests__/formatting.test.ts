@@ -2,7 +2,7 @@
  * Tests pour les fonctions de formatage français
  */
 
-import { formatRepresentativeName, toTitleCase, formatCityName } from "../formatting";
+import { formatRepresentativeName, toTitleCase, formatCityName } from "../lib/formatting";
 
 describe("toTitleCase", () => {
   test("should capitalize first letter and lowercase rest", () => {

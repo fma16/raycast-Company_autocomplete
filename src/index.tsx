@@ -1,7 +1,7 @@
 import { Action, ActionPanel, Detail, Form, useNavigation, environment } from "@raycast/api";
 import { useState } from "react";
-import { validateAndExtractSiren } from "./utils";
-import { useCompanyData } from "./hooks/useCompanyData";
+import { validateAndExtractSiren } from "./lib/utils";
+import { useCompanyData } from "./lib/useCompanyData";
 import { ErrorView } from "./components/ErrorView";
 import { CompanyDetailsView } from "./components/CompanyDetailsView";
 import { CompanyData } from "./types";

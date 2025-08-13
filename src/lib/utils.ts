@@ -1,8 +1,8 @@
-import { AddressInfo } from "./types";
+import { AddressInfo } from "../types";
 import { environment } from "@raycast/api";
-import roleMappings from "../assets/role-mappings.json";
-import { expandStreetType } from "./services/address-formatter";
-import { toTitleCase } from "./utils/formatting";
+import roleMappings from "../../assets/role-mappings.json";
+import { expandStreetType } from "./address-formatter";
+import { toTitleCase } from "./formatting";
 
 const FALLBACK_VALUE = "[[to be completed]]";
 

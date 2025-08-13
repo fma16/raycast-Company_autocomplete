@@ -10,11 +10,11 @@
 import fs from 'fs';
 import path from 'path';
 import csv from 'csv-parser';
-import { compressGreffeData, validateCompression } from '../src/services/greffe-compressor';
+import { compressGreffeData, validateCompression } from './src/lib/greffe-compressor';
 
 // --- Configuration ---
-const DATA_DIR = path.resolve(__dirname, '..', 'data');
-const ASSETS_DIR = path.resolve(__dirname, '..', 'assets');
+const DATA_DIR = path.resolve(__dirname, 'data');
+const ASSETS_DIR = path.resolve(__dirname, 'assets');
 const CSV_FILE = path.join(DATA_DIR, 'referentiel.csv');
 const OUTPUT_JSON = path.join(ASSETS_DIR, 'greffes-index.json');
 const COMPRESSED_OUTPUT = path.join(ASSETS_DIR, 'greffes-index-compressed.json');

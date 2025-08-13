@@ -3,8 +3,8 @@
  */
 
 import { describe, expect } from "@jest/globals";
-import { formatAddress } from "../../utils";
-import { expandStreetType } from "../../services/address-formatter";
+import { formatAddress } from "../../lib/utils";
+import { expandStreetType } from "../../lib/address-formatter";
 import { AddressInfo } from "../../types";
 
 describe("Address Formatting Integration Tests", () => {

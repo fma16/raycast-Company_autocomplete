@@ -8,8 +8,8 @@ import {
   getLegalFormLabel,
   getRoleName,
   FALLBACK_VALUES,
-} from "../utils";
-import { formatRepresentativeName, formatCityName } from "../utils/formatting";
+} from "./utils";
+import { formatRepresentativeName, formatCityName } from "./formatting";
 import { findGreffeByCodePostal } from "./greffe-lookup";
 
 /**

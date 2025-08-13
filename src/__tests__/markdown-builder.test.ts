@@ -6,8 +6,8 @@ import {
   extractRepresentativeInfo,
   markdownToHtml,
   markdownToPlainText,
-} from "../markdown-builder";
-import { CompanyData } from "../../types";
+} from "../lib/markdown-builder";
+import { CompanyData } from "../lib/types";
 
 describe("markdown-builder", () => {
   describe("buildPersonneMoraleMarkdown", () => {

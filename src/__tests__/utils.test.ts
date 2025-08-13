@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
-import { validateAndExtractSiren, formatSiren, formatFrenchNumber } from "../formatting";
-import { formatAddress } from "../../utils";
-import { AddressInfo } from "../../types";
+import { validateAndExtractSiren, formatSiren, formatFrenchNumber } from "../lib/formatting";
+import { formatAddress } from "../lib/utils";
+import { AddressInfo } from "../lib/types";
 
 describe("utils", () => {
   describe("validateAndExtractSiren", () => {

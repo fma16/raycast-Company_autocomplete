@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Detail } from "@raycast/api";
 import { CompanyData } from "../types";
-import { buildMarkdown, markdownToHtml, markdownToPlainText } from "../services/markdown-builder";
+import { buildMarkdown, markdownToHtml, markdownToPlainText } from "../lib/markdown-builder";
 import { CompanyMetadata } from "./CompanyMetadata";
 
 interface CompanyDetailsViewProps {

@@ -114,18 +114,32 @@ export const inpiApiMock = new INPIApiMock();
 
 /**
  * Utility function to determine whether to use mock or real API
+ * Integrates with our comprehensive credential detection system
  */
 export function shouldUseMock(): boolean {
-  // Use mock if:
-  // 1. We are in test environment
-  // 2. Credentials are not available
-  // 3. FORCE_MOCK environment variable is set
+  // Force mock if explicitly requested (GitHub Actions)
+  if (process.env.FORCE_MOCK === "true") {
+    return true;
+  }
 
+  // In non-test environment, always use real API
   const isTestEnvironment = process.env.NODE_ENV === "test" || process.env.JEST_WORKER_ID !== undefined;
-  const hasCredentials = process.env.INPI_USERNAME && process.env.INPI_PASSWORD;
-  const forceMock = process.env.FORCE_MOCK === "true";
+  if (!isTestEnvironment) {
+    return false;
+  }
 
-  return forceMock || (isTestEnvironment && !hasCredentials);
+  // In test environment, use mock only if no real credentials available
+  try {
+    // Dynamic import to avoid circular dependencies in production
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { getTestCredentials } = require("../__tests__/helpers/credentials");
+    const credentials = getTestCredentials();
+    return credentials.source === "none";
+  } catch {
+    // Fallback: check environment variables directly
+    const hasEnvCredentials = process.env.INPI_USERNAME && process.env.INPI_PASSWORD;
+    return !hasEnvCredentials;
+  }
 }
 
 /**
