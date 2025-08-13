@@ -16,7 +16,7 @@ import { findPhysicalRepresentative, extractSirenFromEnterprise } from "./recurs
 /**
  * Main function to build markdown based on company type.
  */
-export async function buildMarkdown(data: CompanyData): Promise<string> {
+export function buildMarkdown(data: CompanyData): string {
   const content = data.formality.content;
 
   if (content.personnePhysique) {
@@ -24,7 +24,24 @@ export async function buildMarkdown(data: CompanyData): Promise<string> {
   }
 
   if (content.personneMorale) {
-    return await buildPersonneMoraleMarkdown(data);
+    return buildPersonneMoraleMarkdown(data);
+  }
+
+  return "No information to display.";
+}
+
+/**
+ * Async version of buildMarkdown that supports recursive representative search.
+ */
+export async function buildMarkdownAsync(data: CompanyData): Promise<string> {
+  const content = data.formality.content;
+
+  if (content.personnePhysique) {
+    return buildPersonnePhysiqueMarkdown(data);
+  }
+
+  if (content.personneMorale) {
+    return await buildPersonneMoraleMarkdownAsync(data);
   }
 
   return "No information to display.";
@@ -64,9 +81,61 @@ N° : ${siren}`;
 }
 
 /**
- * Builds markdown for corporate entities (personneMorale).
+ * Builds markdown for corporate entities (personneMorale) - synchronous version.
  */
-export async function buildPersonneMoraleMarkdown(data: CompanyData): Promise<string> {
+export function buildPersonneMoraleMarkdown(data: CompanyData): string {
+  const content = data.formality.content;
+  const personneMorale = content.personneMorale!;
+  const natureCreation = content.natureCreation;
+
+  // Extract basic company information
+  const legalForm = getLegalFormLabel(natureCreation.formeJuridique);
+  const sirenFormatted = formatSiren(data.formality.siren);
+
+  const identite = personneMorale.identite;
+  const denomination = formatField(identite?.entreprise?.denomination) || formatField(personneMorale.denomination);
+  const shareCapitalRaw =
+    formatField(identite?.description?.montantCapital) || formatField(personneMorale.capital?.montant);
+  const shareCapital =
+    shareCapitalRaw !== FALLBACK_VALUES.MISSING_DATA ? formatFrenchNumber(shareCapitalRaw) : shareCapitalRaw;
+
+  // Extract address and RCS information
+  const address = formatAddress(personneMorale.adresseEntreprise);
+  const codePostal = personneMorale.adresseEntreprise?.adresse?.codePostal;
+  const greffeFromData = codePostal ? findGreffeByCodePostal(codePostal) : null;
+  const rawRcsCity = greffeFromData || personneMorale.immatriculationRcs?.villeImmatriculation;
+  const rcsCity = rawRcsCity ? formatCityName(rawRcsCity) : FALLBACK_VALUES.RCS_CITY;
+
+  // Build company header and details
+  const title = `**La société ${denomination}**`;
+  const details = `${legalForm} au capital de ${shareCapital}\u00A0€
+Immatriculée au RCS de ${rcsCity} sous le n° ${sirenFormatted}
+Dont le siège social est situé ${address}`;
+
+  // Extract representative information (synchronous, no recursive search)
+  const representative = extractRepresentativeInfo(personneMorale.composition || {});
+
+  let representativeLine: string;
+  if (representative.isHolding) {
+    // Corporate representative without recursive search
+    representativeLine = `Représentée aux fins des présentes par ${representative.name} en tant que ${representative.role}.`;
+  } else {
+    // Standard individual representative
+    const genderAgreement = getGenderAgreement(representative.gender);
+    representativeLine = `Représentée aux fins des présentes par ${representative.name} en sa qualité de ${representative.role}, dûment ${genderAgreement}.`;
+  }
+
+  return `${title}
+
+${details}
+
+${representativeLine}`;
+}
+
+/**
+ * Builds markdown for corporate entities (personneMorale) - async version with recursive search.
+ */
+export async function buildPersonneMoraleMarkdownAsync(data: CompanyData): Promise<string> {
   const content = data.formality.content;
   const personneMorale = content.personneMorale!;
   const natureCreation = content.natureCreation;
@@ -129,13 +198,11 @@ Dont le siège social est situé ${address}`;
     representativeLine = `Représentée aux fins des présentes par ${representative.name} en sa qualité de ${representative.role}, dûment ${genderAgreement}.`;
   }
 
-  return `
-${title}
+  return `${title}
 
 ${details}
 
-${representativeLine}
-  `;
+${representativeLine}`;
 }
 
 /**
@@ -159,11 +226,13 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
   );
 
   // Define role priority (highest to lowest priority)
-  const rolePriority = ["73", "51", "30", "53"]; // President, President conseil admin, Manager, General Director
+  const rolePriority = ["5132", "73", "51", "30", "53"]; // President, President conseil admin, Manager, General Director
 
-  // First, check if there's a President (73) - always prioritize President for SAS
+  // First, check if there's a President (5132 or 73) - always prioritize President
   let pouvoir: Record<string, unknown>;
-  const president = pouvoirs.find((p: Record<string, unknown>) => p.roleEntreprise === "73");
+  const president = pouvoirs.find(
+    (p: Record<string, unknown>) => p.roleEntreprise === "5132" || p.roleEntreprise === "73",
+  );
 
   if (president) {
     console.log("🎯 Found President - selecting as priority representative", {
@@ -200,7 +269,7 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
     // Genre may not be present in new format, default to null
     const gender = desc.genre === "2" ? "F" : desc.genre === "1" ? "M" : null;
 
-    return { name, role, gender };
+    return { name, role, gender, isHolding: false };
   }
 
   // Handle individual representative (person) - OLD API FORMAT (fallback)
@@ -212,7 +281,7 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
     const role = getRoleName(roleCode || "");
     const gender = desc.genre === "2" ? "F" : "M";
 
-    return { name, role, gender };
+    return { name, role, gender, isHolding: false };
   }
 
   // Handle corporate representative (company)

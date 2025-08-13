@@ -1,7 +1,7 @@
 import { Action, ActionPanel, Detail } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { CompanyData } from "../types";
-import { buildMarkdown, markdownToHtml, markdownToPlainText } from "../lib/markdown-builder";
+import { buildMarkdownAsync, markdownToHtml, markdownToPlainText } from "../lib/markdown-builder";
 import { CompanyMetadata } from "./CompanyMetadata";
 
 interface CompanyDetailsViewProps {
@@ -10,7 +10,7 @@ interface CompanyDetailsViewProps {
 
 export function CompanyDetailsView({ data }: CompanyDetailsViewProps) {
   const { data: markdown, isLoading } = usePromise(
-    async (companyData: CompanyData) => await buildMarkdown(companyData),
+    async (companyData: CompanyData) => await buildMarkdownAsync(companyData),
     [data],
   );
 
