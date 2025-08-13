@@ -11,7 +11,7 @@ interface CompanyDetailsViewProps {
 export function CompanyDetailsView({ data }: CompanyDetailsViewProps) {
   const { data: markdown, isLoading } = usePromise(
     async (companyData: CompanyData) => await buildMarkdown(companyData),
-    [data]
+    [data],
   );
 
   const displayMarkdown = markdown || "Loading company information...";

@@ -97,15 +97,17 @@ Dont le siège social est situé ${address}`;
 
   // Extract representative information with recursive search for holding companies
   let representative = extractRepresentativeInfo(personneMorale.composition || {});
-  
+
   // If representative is a holding company, try to find its physical representative
   if (representative.isHolding && representative.corporateSiren) {
-    console.log(`🔍 Attempting recursive search for holding ${representative.name} (SIREN: ${representative.corporateSiren})`);
+    console.log(
+      `🔍 Attempting recursive search for holding ${representative.name} (SIREN: ${representative.corporateSiren})`,
+    );
     try {
       representative = await findPhysicalRepresentative(
         representative.name,
         representative.corporateSiren,
-        representative.role
+        representative.role,
       );
     } catch (error) {
       console.error(`❌ Failed to find physical representative for ${representative.name}:`, error);
@@ -151,7 +153,10 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
   const pouvoirs = (composition?.pouvoirs as Record<string, unknown>[]) || [];
   if (!Array.isArray(pouvoirs) || pouvoirs.length === 0) return fallback;
 
-  console.log(`📊 Found ${pouvoirs.length} representatives:`, pouvoirs.map(p => ({ role: p.roleEntreprise, type: p.entreprise ? 'Company' : 'Person' })));
+  console.log(
+    `📊 Found ${pouvoirs.length} representatives:`,
+    pouvoirs.map((p) => ({ role: p.roleEntreprise, type: p.entreprise ? "Company" : "Person" })),
+  );
 
   // Define role priority (highest to lowest priority)
   const rolePriority = ["73", "51", "30", "53"]; // President, President conseil admin, Manager, General Director
@@ -159,9 +164,12 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
   // First, check if there's a President (73) - always prioritize President for SAS
   let pouvoir: Record<string, unknown>;
   const president = pouvoirs.find((p: Record<string, unknown>) => p.roleEntreprise === "73");
-  
+
   if (president) {
-    console.log("🎯 Found President - selecting as priority representative", { role: president.roleEntreprise, isCompany: !!president.entreprise });
+    console.log("🎯 Found President - selecting as priority representative", {
+      role: president.roleEntreprise,
+      isCompany: !!president.entreprise,
+    });
     pouvoir = president;
   } else {
     console.log("⚠️ No President found, falling back to priority sorting");
@@ -214,8 +222,11 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
     const roleCode = pouvoir.roleEntreprise as string;
     const role = getRoleName(roleCode || "");
 
-    console.log(`🏢 Found corporate representative "${name}":`, { availableFields: Object.keys(entreprise), entrepriseData: entreprise });
-    
+    console.log(`🏢 Found corporate representative "${name}":`, {
+      availableFields: Object.keys(entreprise),
+      entrepriseData: entreprise,
+    });
+
     const extractedSiren = extractSirenFromEnterprise(entreprise);
     console.log(`🔍 Extracted SIREN for ${name}: ${extractedSiren}`);
 
@@ -223,27 +234,6 @@ export function extractRepresentativeInfo(composition: Record<string, unknown>):
   }
 
   return fallback;
-}
-
-/**
- * Extracts SIREN from holding company in composition data
- */
-function extractSirenFromHoldingComposition(composition: Record<string, unknown>): string | null {
-  const pouvoirs = (composition?.pouvoirs as Record<string, unknown>[]) || [];
-  if (!Array.isArray(pouvoirs) || pouvoirs.length === 0) return null;
-
-  // Look for the first corporate representative with SIREN
-  for (const pouvoir of pouvoirs) {
-    const entreprise = pouvoir.entreprise as Record<string, unknown>;
-    if (entreprise?.denomination) {
-      const siren = extractSirenFromEnterprise(entreprise);
-      if (siren) {
-        return siren;
-      }
-    }
-  }
-
-  return null;
 }
 
 /**

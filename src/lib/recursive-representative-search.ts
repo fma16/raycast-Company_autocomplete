@@ -7,7 +7,7 @@ import { validateAndExtractSiren } from "./utils";
  * Recursively searches for the physical person representative of a holding company.
  * If the representative of a company is another company (holding), this function
  * will fetch the holding's data and find its physical person representative.
- * 
+ *
  * @param holdingName - Name of the holding company
  * @param holdingSiren - SIREN of the holding company (if available)
  * @param originalRole - Role of the holding company as representative
@@ -18,10 +18,10 @@ export async function findPhysicalRepresentative(
   holdingName: string,
   holdingSiren: string | null,
   originalRole: string,
-  maxDepth: number = 3
+  maxDepth: number = 3,
 ): Promise<RepresentativeInfo> {
   console.log(`🔍 Searching for physical representative of ${holdingName} (SIREN: ${holdingSiren})`);
-  
+
   // Fallback if no SIREN available or max depth reached
   if (!holdingSiren || maxDepth <= 0) {
     console.log(`⚠️  Cannot search deeper: SIREN=${holdingSiren}, depth=${maxDepth}`);
@@ -29,7 +29,7 @@ export async function findPhysicalRepresentative(
       name: holdingName,
       role: originalRole,
       gender: null,
-      isHolding: true
+      isHolding: true,
     };
   }
 
@@ -41,7 +41,7 @@ export async function findPhysicalRepresentative(
       name: holdingName,
       role: originalRole,
       gender: null,
-      isHolding: true
+      isHolding: true,
     };
   }
 
@@ -49,24 +49,24 @@ export async function findPhysicalRepresentative(
     // Fetch holding company data
     const apiService = await createINPIApiService();
     const holdingData: CompanyData = await apiService.getCompanyInfo(validSiren);
-    
+
     if (!holdingData.formality?.content?.personneMorale?.composition) {
       console.log(`⚠️  No composition data found for ${holdingName}`);
       return {
         name: holdingName,
         role: originalRole,
         gender: null,
-        isHolding: true
+        isHolding: true,
       };
     }
 
     // Extract representative from holding company
     const holdingRep = extractRepresentativeInfo(holdingData.formality.content.personneMorale.composition);
-    
+
     // If the holding's representative is also a company, recurse
     if (holdingRep.isHolding && holdingRep.name !== holdingName) {
       console.log(`🔄 Holding ${holdingName} is represented by another company: ${holdingRep.name}`);
-      
+
       // For now, we'll return the chain without going deeper to avoid complex recursion
       // In a future version, we could implement full recursive search
       return {
@@ -77,8 +77,8 @@ export async function findPhysicalRepresentative(
         holdingRepresentative: {
           name: holdingRep.name,
           role: holdingRep.role,
-          gender: holdingRep.gender
-        }
+          gender: holdingRep.gender,
+        },
       };
     }
 
@@ -93,8 +93,8 @@ export async function findPhysicalRepresentative(
         holdingRepresentative: {
           name: holdingRep.name,
           role: holdingRep.role,
-          gender: holdingRep.gender
-        }
+          gender: holdingRep.gender,
+        },
       };
     }
 
@@ -104,16 +104,15 @@ export async function findPhysicalRepresentative(
       name: holdingName,
       role: originalRole,
       gender: null,
-      isHolding: true
+      isHolding: true,
     };
-
   } catch (error) {
     console.error(`❌ Error searching for representative of ${holdingName}:`, error);
     return {
       name: holdingName,
       role: originalRole,
       gender: null,
-      isHolding: true
+      isHolding: true,
     };
   }
 }
@@ -123,14 +122,14 @@ export async function findPhysicalRepresentative(
  */
 export function extractSirenFromEnterprise(entreprise: Record<string, unknown>): string | null {
   // Look for SIREN in various possible fields
-  const sirenFields = ['siren', 'sirenEntreprise', 'identifiant'];
-  
+  const sirenFields = ["siren", "sirenEntreprise", "identifiant"];
+
   for (const field of sirenFields) {
     const value = entreprise[field];
-    if (typeof value === 'string' && value.length === 9 && /^\d{9}$/.test(value)) {
+    if (typeof value === "string" && value.length === 9 && /^\d{9}$/.test(value)) {
       return value;
     }
   }
-  
+
   return null;
 }
