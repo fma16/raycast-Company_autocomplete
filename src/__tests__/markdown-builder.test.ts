@@ -7,7 +7,7 @@ import {
   markdownToHtml,
   markdownToPlainText,
 } from "../lib/markdown-builder";
-import { CompanyData } from "../lib/types";
+import { CompanyData } from "../types";
 
 describe("markdown-builder", () => {
   describe("buildPersonneMoraleMarkdown", () => {
