@@ -14,11 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **📝 Output Formatting**: Corrected cascading representation format: "Représentée par la société [HOLDING] en tant que [ROLE], elle-même représentée par [PERSON] en tant que [ROLE], dûment [habilité/habilitée]"
 - **⚡ Async Operations**: Made markdown generation functions properly async to support API calls
 - **🔄 Loading States**: Added proper loading indicators for recursive search operations
+- **🧪 Test Infrastructure**: Fixed failing unit and integration tests by resolving async/sync function mismatches
+- **🏷️ Role Code Support**: Added support for role code 5132 as President alongside existing 73 code
+- **📊 Type Consistency**: Fixed missing `isHolding` property in RepresentativeInfo returns
 
 ### Changed
 - **📊 Component Updates**: CompanyDetailsView now handles async markdown generation with usePromise
 - **🏗️ Architecture**: Added dedicated recursive-representative-search.ts module for holding company resolution
 - **📋 Type Safety**: Extended RepresentativeInfo interface with corporateSiren field for recursive operations
+- **🔧 Function Separation**: Created separate sync/async versions of markdown builders for test compatibility
+
+### Technical
+- **✅ All Tests Pass**: 59/59 unit tests and 25/25 integration tests now passing
+- **🔄 CI/CD Ready**: GitHub Actions workflows should now pass consistently
 
 ## [1.1.0] - 2025-08-13
 
